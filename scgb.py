@@ -33,7 +33,7 @@ def bot_repost(track_url, comment_owner):
 
     # ignore non-artists
     if only_artist_tracks and comment_owner != track.user_id:
-        print 'Not an owner of: ' + track_url + ' (User: ' + track.user.username + ')'
+        print 'Not an owner of: ' + track_url
         return
     
     print 'Reposting: ' + track_url
