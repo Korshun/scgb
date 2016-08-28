@@ -1,6 +1,6 @@
 
 # By Monsterovich
-# Version: v1
+# Version: v1.1
 # This script reposts user's track from the comments
 
 import soundcloud
@@ -11,6 +11,7 @@ from time import gmtime, strftime
 # user data
 
 only_artist_tracks = True
+allow_delete = True
 
 client = soundcloud.Client(
     client_id='',
@@ -20,6 +21,16 @@ client = soundcloud.Client(
 )
 
 def bot_repost(track_url, comment_owner):
+    delete = False
+
+    if not track_url:
+        print 'Empty URL detected.'
+        return
+
+    if track_url[0] == '!':
+        delete = True
+        track_url = track_url[1:]
+
     try:
         r = requests.get(track_url)
         if r.status_code == 404:
@@ -35,7 +46,15 @@ def bot_repost(track_url, comment_owner):
     if only_artist_tracks and comment_owner != track.user_id:
         print 'Not an owner of: ' + track_url
         return
-    
+
+    if allow_delete and delete:
+        print 'Removing repost: ' + track_url
+        try:
+            client.delete('/e1/me/track_reposts/'+str(track.id))
+        except requests.exceptions.HTTPError:
+            print 'Repost does not exist: ' + url
+        return
+
     print 'Reposting: ' + track_url
     client.put('/e1/me/track_reposts/'+str(track.id))
 
