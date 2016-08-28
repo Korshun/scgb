@@ -8,6 +8,10 @@ import requests
 import time
 from time import gmtime, strftime
 
+# user data
+
+only_artist_tracks = True
+
 client = soundcloud.Client(
     client_id='',
     client_secret='',
@@ -15,7 +19,7 @@ client = soundcloud.Client(
     password=''
 )
 
-def bot_repost(track_url):
+def bot_repost(track_url, comment_owner):
     try:
         r = requests.get(track_url)
         if r.status_code == 404:
@@ -26,6 +30,12 @@ def bot_repost(track_url):
         return
 
     track = client.get('/resolve', url=track_url)
+
+    # ignore non-artists
+    if only_artist_tracks and comment_owner != track.user_id:
+        print 'Not an owner of: ' + track_url + ' (User: ' + track.user.username + ')'
+        return
+    
     print 'Reposting: ' + track_url
     client.put('/e1/me/track_reposts/'+str(track.id))
 
@@ -44,7 +54,7 @@ def bot_check():
     for comment in comments:
         url = comment.body
         print 'Processing: ' + url
-        bot_repost(url)
+        bot_repost(url, comment.user_id)
         try:
             client.delete('/tracks/' + str(track.id) + '/comments/' + str(comment.id))
         except requests.exceptions.HTTPError:
