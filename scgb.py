@@ -1,3 +1,4 @@
+#!/usr/bin/python
 
 # By Monsterovich
 # Version: v1.1
