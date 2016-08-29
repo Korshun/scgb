@@ -16,8 +16,8 @@ allow_delete = config.allow_delete
 client = soundcloud.Client(
     client_id=config.client_id,
     client_secret=config.client_secret,
-    username=config.client_username,
-    password=config.client_password
+    username=config.username,
+    password=config.password
 )
 
 def bot_repost(track_url, comment_owner):
