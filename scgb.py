@@ -10,9 +10,6 @@ import time
 from time import gmtime, strftime
 import config
 
-only_artist_tracks = config.only_artist_tracks
-allow_delete = config.allow_delete
-
 client = soundcloud.Client(
     client_id=config.client_id,
     client_secret=config.client_secret,
@@ -43,11 +40,11 @@ def bot_repost(track_url, comment_owner):
     track = client.get('/resolve', url=track_url)
 
     # ignore non-artists
-    if only_artist_tracks and comment_owner != track.user_id:
+    if config.only_artist_tracks and comment_owner != track.user_id:
         print 'Not an owner of: ' + track_url
         return
 
-    if only_artist_tracks and allow_delete and delete:
+    if config.only_artist_tracks and config.allow_delete and delete:
         print 'Removing repost: ' + track_url
         try:
             client.delete('/e1/me/track_reposts/'+str(track.id))
