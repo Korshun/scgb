@@ -47,7 +47,7 @@ def bot_repost(track_url, comment_owner):
         print 'Not an owner of: ' + track_url
         return
 
-    if allow_delete and delete:
+    if only_artist_tracks and allow_delete and delete:
         print 'Removing repost: ' + track_url
         try:
             client.delete('/e1/me/track_reposts/'+str(track.id))
