@@ -52,7 +52,7 @@ def bot_repost(track_url, comment_owner):
         try:
             client.delete('/e1/me/track_reposts/'+str(track.id))
         except requests.exceptions.HTTPError:
-            print 'Repost does not exist: ' + url
+            print 'Repost does not exist: ' + track_url
         return
 
     print 'Reposting: ' + track_url
