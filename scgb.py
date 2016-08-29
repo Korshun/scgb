@@ -7,17 +7,18 @@ import soundcloud
 import requests
 import time
 from time import gmtime, strftime
+import config
 
 # user data
 
-only_artist_tracks = True
-allow_delete = True
+only_artist_tracks = config_only_artist_tracks
+allow_delete = config_allow_delete
 
 client = soundcloud.Client(
-    client_id='',
-    client_secret='',
-    username='',
-    password=''
+    client_id=config_client_id,
+    client_secret=config_client_secret,
+    username=config_client_username,
+    password=config_client_password
 )
 
 def bot_repost(track_url, comment_owner):
