@@ -1,6 +1,6 @@
 
 client_id=''
-client_secret''
+client_secret=''
 username=''
 password=''
 
