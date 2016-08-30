@@ -158,8 +158,8 @@ def bot_check():
     db.commit()
 
 if __name__ == '__main__':
-	db_setup()
-	print strftime("[%Y-%m-%d %H:%M:%S]", gmtime()) + ' Reposting songs from the comments.'
-	bot_check()
+    db_setup()
+    print strftime("[%Y-%m-%d %H:%M:%S]", gmtime()) + ' Reposting songs from the comments.'
+    bot_check()
 
 #EOF
