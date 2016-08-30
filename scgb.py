@@ -7,6 +7,7 @@
 import soundcloud
 import requests
 import time
+from urlparse import urlparse
 from time import gmtime, strftime
 import config
 
@@ -19,6 +20,7 @@ client = soundcloud.Client(
 
 def bot_repost(track_url, comment_owner):
     delete = False
+    playlist = False
 
     if not track_url:
         print 'Empty URL detected.'
@@ -28,6 +30,10 @@ def bot_repost(track_url, comment_owner):
         delete = True
         track_url = track_url[1:]
 
+    test_url = urlparse(link).path.split('/')
+    if len(test_url) == 4 and test_url[2] == 'sets':
+        playlist = True
+
     try:
         r = requests.get(track_url)
         if r.status_code == 404:
@@ -35,6 +41,10 @@ def bot_repost(track_url, comment_owner):
             return
     except requests.exceptions.MissingSchema:
         print 'Invalid URL: ' + track_url
+        return
+
+    if playlist and not config.allow_playlists:
+        print 'Playlists are not allowed. Skipping.'
         return
 
     track = client.get('/resolve', url=track_url)
@@ -47,13 +57,19 @@ def bot_repost(track_url, comment_owner):
     if config.only_artist_tracks and config.allow_delete and delete:
         print 'Removing repost: ' + track_url
         try:
-            client.delete('/e1/me/track_reposts/'+str(track.id))
+            if playlist:
+                client.delete('/e1/me/playlist_reposts/'+str(track.id))
+            else:
+                client.delete('/e1/me/track_reposts/'+str(track.id))
         except requests.exceptions.HTTPError:
             print 'Repost does not exist: ' + track_url
         return
 
     print 'Reposting: ' + track_url
-    client.put('/e1/me/track_reposts/'+str(track.id))
+    if playlist:
+        client.put('/e1/me/playlist_reposts/'+str(track.id))
+    else:
+        client.put('/e1/me/track_reposts/'+str(track.id))
 
 def bot_check():
     # get the first track from authenticated user
