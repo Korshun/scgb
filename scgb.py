@@ -27,7 +27,7 @@ def db_set_value(name, value):
     db.execute('INSERT OR REPLACE INTO SCGB (name, value) VALUES (?, ?)', (name, value))
 
 def db_value_exists(name):
-    return db.execute('SELECT COUNT(*) FROM SCDB WHERE name=?', (name,)).fetchone()[0] == 1
+    return db.execute('SELECT COUNT(*) FROM SCGB WHERE name=?', (name,)).fetchone()[0] == 1
 
 def db_delete_value(name):
     db.execute('DELETE FROM SCDB WHERE name=?', name)
