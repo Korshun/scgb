@@ -11,7 +11,7 @@ from urlparse import urlparse
 from time import gmtime, strftime
 import config
 
-bot_version = '1.2'
+bot_version = '1.2.1'
 
 client = soundcloud.Client(
     client_id=config.client_id,
@@ -29,8 +29,7 @@ CREATE TABLE IF NOT EXISTS SCGB
     name TEXT,
     value
 );
-    )
-'''
+''')
 
 def db_get_value(name):
     return db.execute('SELECT value FROM SCGB WHERE name=?', (name,)).fetchone()[0]
