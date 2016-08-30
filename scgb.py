@@ -1,7 +1,6 @@
 #!/usr/bin/python
 
 # By Monsterovich
-# Version: v1.1
 # This script reposts user's track from the comments
 
 import soundcloud
@@ -12,12 +11,27 @@ from urlparse import urlparse
 from time import gmtime, strftime
 import config
 
+bot_version = '1.1'
+
 client = soundcloud.Client(
     client_id=config.client_id,
     client_secret=config.client_secret,
     username=config.username,
     password=config.password
 )
+
+def bot_update_description():
+    if not config.use_advanced_description:
+        return
+
+    desc = config.description_template.strip()
+    desc.replace(config.keyword_tag + 'bot_version' + config.keyword_tag, bot_version)
+    track_count = len(client.get('/e1/me/track_reposts/'))
+    desc.replace(config.keyword_tag + 'track_count' + config.keyword_tag, str(track_count))
+    playlist_count = len(client.get('/e1/me/playlist_reposts/'))
+    desc.replace(config.keyword_tag + 'playlist_count' + config.keyword_tag, str(playlist_count))
+
+    client.post('/me', description=desc)
 
 def bot_repost(track_url, comment_owner):
     delete = False
@@ -97,6 +111,8 @@ def bot_check():
         except requests.exceptions.HTTPError:
             print 'Nothing to delete: ' + url
             continue
+
+    bot_update_description()
 
 print strftime("[%Y-%m-%d %H:%M:%S]", gmtime()) + ' Reposting songs from the comments.'
 bot_check()
