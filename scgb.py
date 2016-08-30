@@ -6,12 +6,11 @@
 import soundcloud
 import requests
 import time
-import urllib2
 from urlparse import urlparse
 from time import gmtime, strftime
 import config
 
-bot_version = '1.1'
+bot_version = '1.2'
 
 client = soundcloud.Client(
     client_id=config.client_id,
@@ -31,7 +30,7 @@ def bot_update_description():
     playlist_count = len(client.get('/e1/me/playlist_reposts/'))
     desc = desc.replace(config.keyword_tag + 'playlist_count' + config.keyword_tag, str(playlist_count))
 
-    client.post('/me', description=desc)
+    client.put('/me', **{ 'user[description]': desc })
 
 def bot_repost(track_url, comment_owner):
     delete = False
