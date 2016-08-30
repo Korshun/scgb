@@ -20,6 +20,18 @@ client = soundcloud.Client(
     password=config.password
 )
 
+def db_get_value(name):
+    return db.execute('SELECT value FROM SCGB WHERE name=?', (name,)).fetchone()[0]
+
+def db_set_value(name, value):
+    db.execute('INSERT OR REPLACE INTO SCGB (name, value) VALUES (?, ?)', (name, value))
+
+def db_value_exists(name):
+    return db.execute('SELECT COUNT(*) FROM SCDB WHERE name=?', (name,)).fetchone()[0] == 1
+
+def db_delete_value(name):
+    db.execute('DELETE FROM SCDB WHERE name=?', name)
+
 def db_setup():
     global db
     db = sqlite3.connect(config.stats_database)
@@ -30,12 +42,10 @@ CREATE TABLE IF NOT EXISTS SCGB
     value
 );
 ''')
-
-def db_get_value(name):
-    return db.execute('SELECT value FROM SCGB WHERE name=?', (name,)).fetchone()[0]
-
-def db_set_value(name, value):
-    db.execute('INSERT OR REPLACE INTO SCGB (name, value) VALUES (?, ?)', (name, value))
+    if not db_value_exist('track_count'):
+        db_set_value('track_count', 0)
+    if not db_value_exist('playlist_count'):
+        db_set_value('playlist_count', 0)
 
 def bot_track_exists(playlist, track_id):
     try:
