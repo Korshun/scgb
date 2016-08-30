@@ -42,9 +42,9 @@ CREATE TABLE IF NOT EXISTS SCGB
     value
 );
 ''')
-    if not db_value_exist('track_count'):
+    if not db_value_exists('track_count'):
         db_set_value('track_count', 0)
-    if not db_value_exist('playlist_count'):
+    if not db_value_exists('playlist_count'):
         db_set_value('playlist_count', 0)
 
 def bot_track_exists(playlist, track_id):
