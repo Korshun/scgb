@@ -114,7 +114,7 @@ def bot_repost(track_url, comment_owner):
             db_set_value('playlist_count', db_get_value('playlist_count')-1)
             client.delete('/e1/me/playlist_reposts/'+str(track.id))
         else:
-            db_set_value('playlist_count', db_get_value('playlist_count')-1)
+            db_set_value('track_count', db_get_value('track_count')-1)
             client.delete('/e1/me/track_reposts/'+str(track.id))
         return
 
