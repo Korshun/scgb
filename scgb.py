@@ -30,7 +30,7 @@ def bot_repost(track_url, comment_owner):
         delete = True
         track_url = track_url[1:]
 
-    test_url = urlparse(link).path.split('/')
+    test_url = urlparse(track_url).path.split('/')
     if len(test_url) == 4 and test_url[2] == 'sets':
         playlist = True
 
