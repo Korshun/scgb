@@ -25,11 +25,11 @@ def bot_update_description():
         return
 
     desc = config.description_template.strip()
-    desc.replace(config.keyword_tag + 'bot_version' + config.keyword_tag, bot_version)
+    desc = desc.replace(config.keyword_tag + 'bot_version' + config.keyword_tag, bot_version)
     track_count = len(client.get('/e1/me/track_reposts/'))
-    desc.replace(config.keyword_tag + 'track_count' + config.keyword_tag, str(track_count))
+    desc = desc.replace(config.keyword_tag + 'track_count' + config.keyword_tag, str(track_count))
     playlist_count = len(client.get('/e1/me/playlist_reposts/'))
-    desc.replace(config.keyword_tag + 'playlist_count' + config.keyword_tag, str(playlist_count))
+    desc = desc.replace(config.keyword_tag + 'playlist_count' + config.keyword_tag, str(playlist_count))
 
     client.post('/me', description=desc)
 
