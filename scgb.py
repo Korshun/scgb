@@ -30,7 +30,7 @@ def db_value_exists(name):
     return db.execute('SELECT COUNT(*) FROM SCGB WHERE name=?', (name,)).fetchone()[0] == 1
 
 def db_delete_value(name):
-    db.execute('DELETE FROM SCDB WHERE name=?', name)
+    db.execute('DELETE FROM SCGB WHERE name=?', name)
 
 def db_setup():
     global db
