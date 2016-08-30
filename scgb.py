@@ -147,6 +147,7 @@ def bot_check():
     bot_update_description()
     db.commit()
 
+db_setup()
 print strftime("[%Y-%m-%d %H:%M:%S]", gmtime()) + ' Reposting songs from the comments.'
 bot_check()
 
