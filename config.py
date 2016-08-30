@@ -8,6 +8,8 @@ only_artist_tracks = True
 allow_delete = True
 allow_playlists = True
 
+stats_database='scgb-stats.db'
+
 use_advanced_description = True
 keyword_tag='$'
 description_template = '''

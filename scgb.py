@@ -6,6 +6,7 @@
 import soundcloud
 import requests
 import time
+import sqlite3
 from urlparse import urlparse
 from time import gmtime, strftime
 import config
@@ -19,15 +20,43 @@ client = soundcloud.Client(
     password=config.password
 )
 
+def db_setup():
+    global db
+    db = sqlite3.connect(config.stats_database)
+    db.execute('''
+CREATE TABLE IF NOT EXISTS SCGB
+(
+    name TEXT,
+    value
+);
+    )
+'''
+
+def db_get_value(name):
+    return db.execute('SELECT value FROM SCGB WHERE name=?', (name,)).fetchone()[0]
+
+def db_set_value(name, value):
+    db.execute('INSERT OR REPLACE INTO SCGB (name, value) VALUES (?, ?)', (name, value))
+
+def bot_track_exists(playlist, track_id):
+    try:
+        if playlist:
+            client.get('/e1/me/playlist_reposts/'+str(track_id))
+        else:
+            client.get('/e1/me/track_reposts/'+str(track_id))
+        return True
+    except requests.exceptions.HTTPError:
+        return False
+
 def bot_update_description():
     if not config.use_advanced_description:
         return
 
     desc = config.description_template.strip()
     desc = desc.replace(config.keyword_tag + 'bot_version' + config.keyword_tag, bot_version)
-    track_count = len(client.get('/e1/me/track_reposts/'))
+    track_count = db_get_value('track_count')
     desc = desc.replace(config.keyword_tag + 'track_count' + config.keyword_tag, str(track_count))
-    playlist_count = len(client.get('/e1/me/playlist_reposts/'))
+    playlist_count = db_get_value('playlist_count')
     desc = desc.replace(config.keyword_tag + 'playlist_count' + config.keyword_tag, str(playlist_count))
 
     client.put('/me', **{ 'user[description]': desc })
@@ -69,20 +98,25 @@ def bot_repost(track_url, comment_owner):
         return
 
     if config.only_artist_tracks and config.allow_delete and delete:
+        if not bot_track_exists(playlist, track.id):
+            return
         print 'Removing repost: ' + track_url
-        try:
-            if playlist:
-                client.delete('/e1/me/playlist_reposts/'+str(track.id))
-            else:
-                client.delete('/e1/me/track_reposts/'+str(track.id))
-        except requests.exceptions.HTTPError:
-            print 'Repost does not exist: ' + track_url
+        if playlist:
+            db_set_value('playlist_count', db_get_value('playlist_count')-1)
+            client.delete('/e1/me/playlist_reposts/'+str(track.id))
+        else:
+            db_set_value('playlist_count', db_get_value('playlist_count')-1)
+            client.delete('/e1/me/track_reposts/'+str(track.id))
         return
 
+    if bot_track_exists(playlist, track.id):
+        return
     print 'Reposting: ' + track_url
     if playlist:
+        db_set_value('playlist_count', db_get_value('playlist_count')+1)
         client.put('/e1/me/playlist_reposts/'+str(track.id))
     else:
+        db_set_value('track_count', db_get_value('track_count')+1)
         client.put('/e1/me/track_reposts/'+str(track.id))
 
 def bot_check():
@@ -112,6 +146,7 @@ def bot_check():
             continue
 
     bot_update_description()
+    db.commit()
 
 print strftime("[%Y-%m-%d %H:%M:%S]", gmtime()) + ' Reposting songs from the comments.'
 bot_check()
