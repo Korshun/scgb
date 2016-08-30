@@ -38,7 +38,7 @@ def db_setup():
     db.execute('''
 CREATE TABLE IF NOT EXISTS SCGB
 (
-    name TEXT,
+    name TEXT PRIMARY KEY,
     value
 );
 ''')
