@@ -97,10 +97,6 @@ def bot_check():
         except requests.exceptions.HTTPError:
             print 'Nothing to delete: ' + url
             continue
-    
-    # this should update Soundcloud DB
-    response = urllib2.urlopen(track.uri)
-    html = response.read()
 
 print strftime("[%Y-%m-%d %H:%M:%S]", gmtime()) + ' Reposting songs from the comments.'
 bot_check()
