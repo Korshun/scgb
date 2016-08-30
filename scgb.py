@@ -144,7 +144,7 @@ def bot_check():
         return
 
     # process each comment and delete it
-    for comment in comments:
+    for comment in reversed(comments):
         url = comment.body
         print 'Processing: ' + url
         bot_repost(url, comment.user_id)
