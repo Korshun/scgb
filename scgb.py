@@ -7,6 +7,7 @@
 import soundcloud
 import requests
 import time
+import urllib2
 from urlparse import urlparse
 from time import gmtime, strftime
 import config
@@ -75,6 +76,10 @@ def bot_check():
     # get the first track from authenticated user
     track = client.get('/me/tracks')[0]
 
+    if not track:
+        print 'Error: group track does not exist!'
+        return
+
     # get a list of comments of the track
     comments = client.get('/tracks/%d/comments' % track.id)
 
@@ -92,6 +97,10 @@ def bot_check():
         except requests.exceptions.HTTPError:
             print 'Nothing to delete: ' + url
             continue
+    
+    # this should update Soundcloud DB
+    response = urllib2.urlopen(track.uri)
+    html = response.read()
 
 print strftime("[%Y-%m-%d %H:%M:%S]", gmtime()) + ' Reposting songs from the comments.'
 bot_check()
