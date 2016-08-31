@@ -91,7 +91,7 @@ def bot_repost(track_url, comment_owner):
         if r.status_code == 404:
             print 'Not found URL: ' + track_url
             return
-    except requests.exceptions.MissingSchema:
+    except ValueError:
         print 'Invalid URL: ' + track_url
         return
 
