@@ -124,8 +124,12 @@ def bot_repost(track_url, comment_owner):
         client.put('/e1/me/track_reposts/'+str(track.id))
 
 def bot_check():
-    # get the first track from authenticated user
-    track = client.get('/me/tracks')[0]
+    # get track from authenticated user
+    try:
+        track = client.get('/me/tracks')[config.post_track_id]
+    except requests.exceptions.HTTPError:
+        print 'Cannot find a track with id ' + str(config.post_track_id) + ' Please, fix post_track_id in config.py'
+        return
 
     if not track:
         print 'Error: group track does not exist!'
