@@ -9,6 +9,10 @@ allow_delete = True
 allow_playlists = True
 
 stats_database='scgb-stats.db'
+
+# WARNING IF YOU POST MORE THAN ONE TRACK:
+# posting a new original track will increase every other track's id by one.
+# So you need to increase post_track_id by 1 after posting a new original track from the group's account.
 post_track_id=0
 
 use_advanced_description = True
