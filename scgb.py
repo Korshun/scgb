@@ -127,8 +127,12 @@ def bot_check():
     # get track from authenticated user
     try:
         track = client.get('/me/tracks')[config.post_track_id]
-    except requests.exceptions.HTTPError:
-        print 'Cannot find a track with id ' + str(config.post_track_id) + ' Please, fix post_track_id in config.py'
+    except requests.exceptions.HTTPError as e:
+        if e.response.status_code == 404:
+            print 'Cannot find a track with id ' + str(config.post_track_id) + ' Please, fix post_track_id in config.py'
+        else
+            print 'Cannot load comments for track with id ' + str(config.post_track_id)
+            print e
         return
 
     if not track:
