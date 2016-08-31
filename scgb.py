@@ -11,7 +11,7 @@ from urlparse import urlparse
 from time import gmtime, strftime
 import config
 
-bot_version = '1.2.1'
+bot_version = '1.2.2'
 
 client = soundcloud.Client(
     client_id=config.client_id,
@@ -86,20 +86,15 @@ def bot_repost(track_url, comment_owner):
     if len(test_url) == 4 and test_url[2] == 'sets':
         playlist = True
 
-    try:
-        r = requests.get(track_url)
-        if r.status_code == 404:
-            print 'Not found URL: ' + track_url
-            return
-    except ValueError:
-        print 'Invalid URL: ' + track_url
-        return
-
     if playlist and not config.allow_playlists:
         print 'Playlists are not allowed. Skipping.'
         return
 
-    track = client.get('/resolve', url=track_url)
+    try:
+        track = client.get('/resolve', url=track_url)
+    except requests.exceptions.HTTPError:
+        print 'Wrong URL: ' + track_url
+        return
 
     # ignore non-artists
     if config.only_artist_tracks and comment_owner != track.user_id:
