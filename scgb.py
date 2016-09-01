@@ -106,22 +106,22 @@ def bot_repost(track_url, comment_owner):
             return
         print 'Removing repost: ' + track_url
         if playlist:
-            db_set_value('playlist_count', db_get_value('playlist_count')-1)
             client.delete('/e1/me/playlist_reposts/'+str(track.id))
+            db_set_value('playlist_count', db_get_value('playlist_count')-1)
         else:
-            db_set_value('track_count', db_get_value('track_count')-1)
             client.delete('/e1/me/track_reposts/'+str(track.id))
+            db_set_value('track_count', db_get_value('track_count')-1)
         return
 
     if bot_track_exists(playlist, track.id):
         return
     print 'Reposting: ' + track_url
     if playlist:
-        db_set_value('playlist_count', db_get_value('playlist_count')+1)
         client.put('/e1/me/playlist_reposts/'+str(track.id))
+        db_set_value('playlist_count', db_get_value('playlist_count')+1)
     else:
-        db_set_value('track_count', db_get_value('track_count')+1)
         client.put('/e1/me/track_reposts/'+str(track.id))
+        db_set_value('track_count', db_get_value('track_count')+1)
 
 def bot_check():
     # get track from authenticated user
@@ -163,6 +163,10 @@ def bot_check():
 if __name__ == '__main__':
     db_setup()
     print strftime("[%Y-%m-%d %H:%M:%S]", gmtime()) + ' Reposting songs from the comments.'
-    bot_check()
+    try:
+        bot_check()
+    except:
+        db.commit()
+        raise
 
 #EOF
