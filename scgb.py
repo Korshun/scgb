@@ -131,7 +131,7 @@ def bot_check():
         if e.response.status_code == 404:
             print 'Cannot find a track with id ' + str(config.post_track_id) + ' Please, fix post_track_id in config.py'
         else:
-            print 'Cannot load comments for track with id ' + str(config.post_track_id)
+            print 'Cannot load track with id ' + str(config.post_track_id)
             print e
         return
 
