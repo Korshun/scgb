@@ -20,6 +20,8 @@ client = soundcloud.Client(
     password=config.password
 )
 
+banlist = {}
+
 def db_get_value(name):
     return db.execute('SELECT value FROM SCGB WHERE name=?', (name,)).fetchone()[0]
 
@@ -46,6 +48,27 @@ CREATE TABLE IF NOT EXISTS SCGB
         db_set_value('track_count', 0)
     if not db_value_exists('playlist_count'):
         db_set_value('playlist_count', 0)
+
+def bot_load_banlist():
+    # create banlist if not exists
+    if not os.path.exists('banlist.txt'):
+        open('banlist.txt', 'ab').close()
+  
+    with open('banlist.txt', 'r') as file:
+        for line in file:
+            line = line.strip()
+            if line == '' or line.startswith('//'):
+                continue # skip empty lines and comments
+   
+            id, reason = line.split(None, 1)
+
+            try:
+                id = int(id)
+            except ValueError:
+                print('Banlist error: {} is not a user id number'.format(id))
+                continue
+    
+            banlist[id] = reason
 
 def bot_track_exists(playlist, track_id):
     try:
@@ -77,6 +100,10 @@ def bot_repost(track_url, comment_owner):
 
     if not track_url:
         print 'Empty URL detected.'
+        return False
+
+    if comment_owner in banlist:
+        print 'Banned user id: ' + str(comment_owner)
         return False
 
     if track_url[0] == '!':
@@ -168,6 +195,7 @@ def bot_check():
         bot_update_description()
 
 if __name__ == '__main__':
+    bot_load_banlist()
     db_setup()
     print strftime("[%Y-%m-%d %H:%M:%S]", gmtime()) + ' Reposting songs from the comments.'
     bot_check()
