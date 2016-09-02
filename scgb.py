@@ -62,6 +62,7 @@ def bot_update_description():
         return
 
     desc = config.description_template.strip()
+    desc = desc.replace(config.keyword_tag + 'last_update' + config.keyword_tag, strftime("%Y-%m-%d %H:%M:%S", gmtime()))
     desc = desc.replace(config.keyword_tag + 'bot_version' + config.keyword_tag, bot_version)
     track_count = db_get_value('track_count')
     desc = desc.replace(config.keyword_tag + 'track_count' + config.keyword_tag, str(track_count))
@@ -76,7 +77,7 @@ def bot_repost(track_url, comment_owner):
 
     if not track_url:
         print 'Empty URL detected.'
-        return
+        return False
 
     if track_url[0] == '!':
         delete = True
@@ -88,22 +89,22 @@ def bot_repost(track_url, comment_owner):
 
     if playlist and not config.allow_playlists:
         print 'Playlists are not allowed. Skipping.'
-        return
+        return False
 
     try:
         track = client.get('/resolve', url=track_url)
     except requests.exceptions.HTTPError:
         print 'Wrong URL: ' + track_url
-        return
+        return False
 
     # ignore non-artists
     if config.only_artist_tracks and comment_owner != track.user_id:
         print 'Not an owner of: ' + track_url
-        return
+        return False
 
     if config.only_artist_tracks and config.allow_delete and delete:
         if not bot_track_exists(playlist, track.id):
-            return
+            return False
         print 'Removing repost: ' + track_url
         if playlist:
             client.delete('/e1/me/playlist_reposts/'+str(track.id))
@@ -113,10 +114,10 @@ def bot_repost(track_url, comment_owner):
             client.delete('/e1/me/track_reposts/'+str(track.id))
             db_set_value('track_count', db_get_value('track_count')-1)
             db.commit()
-        return
+        return True
 
     if bot_track_exists(playlist, track.id):
-        return
+        return False
     print 'Reposting: ' + track_url
     if playlist:
         client.put('/e1/me/playlist_reposts/'+str(track.id))
@@ -126,8 +127,10 @@ def bot_repost(track_url, comment_owner):
         client.put('/e1/me/track_reposts/'+str(track.id))
         db_set_value('track_count', db_get_value('track_count')+1)
         db.commit()
+    return True
 
 def bot_check():
+    update_desc = 0
     # get track from authenticated user
     try:
         track = client.get('/me/tracks')[config.post_track_id]
@@ -154,15 +157,15 @@ def bot_check():
     for comment in reversed(comments):
         url = comment.body
         print 'Processing: ' + url
-        bot_repost(url, comment.user_id)
+        update_desc += bot_repost(url, comment.user_id)
         try:
             client.delete('/tracks/' + str(track.id) + '/comments/' + str(comment.id))
         except requests.exceptions.HTTPError:
             print 'Nothing to delete: ' + url
             continue
 
-    bot_update_description()
-    db.commit()
+    if update_desc > 0:
+        bot_update_description()
 
 if __name__ == '__main__':
     db_setup()

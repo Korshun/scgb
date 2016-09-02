@@ -18,6 +18,7 @@ post_track_id=0
 use_advanced_description = True
 keyword_tag='$'
 description_template = '''
+Last update: $last_update$
 This group uses scgb bot v$bot_version$
 Total tracks: $track_count$
 Total playlists: $playlist_count$
