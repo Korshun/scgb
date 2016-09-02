@@ -61,15 +61,18 @@ def bot_load_banlist():
             if line == '' or line.startswith('//'):
                 continue # skip empty lines and comments
    
-            id, reason = line.split(None, 1)
-
+            values = line.split(None, 1)
+    
             try:
-                id = int(id)
+                id = int(values[0])
             except ValueError:
                 print('Banlist error: {} is not a user id number'.format(id))
                 continue
     
-            banlist[id] = reason
+            if len(values) > 1:
+                banlist[id] = values[1]
+            else:
+                banlist[id] = "No reason given."
 
 def bot_track_exists(playlist, track_id):
     try:
