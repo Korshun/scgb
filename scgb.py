@@ -52,9 +52,9 @@ CREATE TABLE IF NOT EXISTS SCGB
 def bot_load_banlist():
     # create banlist if not exists
     if not os.path.exists('banlist.txt'):
-        open('banlist.txt', 'ab').close()
+        open(config.banlistfile, 'ab').close()
   
-    with open('banlist.txt', 'r') as file:
+    with open(config.banlistfile, 'r') as file:
         for line in file:
             line = line.strip()
             if line == '' or line.startswith('//'):

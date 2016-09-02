@@ -9,6 +9,7 @@ allow_delete = True
 allow_playlists = True
 
 stats_database='scgb-stats.db'
+banlistfile='banlist.txt'
 
 # WARNING IF YOU POST MORE THAN ONE TRACK:
 # posting a new original track will increase every other track's id by one.
