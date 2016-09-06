@@ -6,6 +6,7 @@
 import soundcloud
 import requests
 import time
+import datetime
 import os
 import sqlite3
 from urlparse import urlparse
@@ -97,7 +98,7 @@ def bot_track_spam_check(playlist, track_id):
             db_set_value(repost_time_name, int(time()))
             return True
         else:
-            print 'Cannot repost track: ' + str(current_time) + ' seconds left.'
+            print 'Cannot repost track: ' + str(datetime.timedelta(seconds=current_time)) + ' left.'
             return False
     else:
         db_set_value(repost_time_name, int(time()))
