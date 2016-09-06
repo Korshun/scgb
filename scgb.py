@@ -9,7 +9,7 @@ import time
 import os
 import sqlite3
 from urlparse import urlparse
-from time import gmtime, strftime
+from time import gmtime, strftime, time
 import config
 
 bot_version = '1.2.3'
@@ -84,6 +84,25 @@ def bot_track_exists(playlist, track_id):
     except requests.exceptions.HTTPError:
         return False
 
+def bot_track_spam_check(playlist, track_id):
+    what = 'track'
+    if playlist:
+        what = 'playlist'
+
+    repost_time_name = what + '_' + str(track_id) + '_repost_time'
+
+    if db_value_exists(repost_time_name):
+        current_time = db_get_value(repost_time_name) + config.max_repost_interval - time();
+        if current_time <= 0:
+            db_set_value(repost_time_name, time())
+            return True
+        else:
+            print 'Cannot repost track: ' + str(current_time) + ' seconds left.'
+            return False
+    else:
+        db_set_value(repost_time_name, time())
+        return True
+
 def bot_update_description():
     if not config.use_advanced_description:
         return
@@ -148,6 +167,8 @@ def bot_repost(track_url, comment_owner):
         return True
 
     if bot_track_exists(playlist, track.id):
+        return False
+    if not bot_track_spam_check(playlist, track.id):
         return False
     print 'Reposting: ' + track_url
     if playlist:
