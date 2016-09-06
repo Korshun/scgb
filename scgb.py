@@ -92,15 +92,15 @@ def bot_track_spam_check(playlist, track_id):
     repost_time_name = what + '_' + str(track_id) + '_repost_time'
 
     if db_value_exists(repost_time_name):
-        current_time = db_get_value(repost_time_name) + config.max_repost_interval - time();
+        current_time = db_get_value(repost_time_name) + config.max_repost_interval - int(time());
         if current_time <= 0:
-            db_set_value(repost_time_name, time())
+            db_set_value(repost_time_name, int(time()))
             return True
         else:
             print 'Cannot repost track: ' + str(current_time) + ' seconds left.'
             return False
     else:
-        db_set_value(repost_time_name, time())
+        db_set_value(repost_time_name, int(time()))
         return True
 
 def bot_update_description():
