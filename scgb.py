@@ -35,13 +35,13 @@ def db_value_exists(name):
 
 def db_delete_value(name):
     db.execute('DELETE FROM SCGB WHERE name=?', name)
-	
+
 def db_increment_value(name):
-	db.execute('UPDATE SCGB SET value=value + 1 WHERE name=?', (name,))
+    db.execute('UPDATE SCGB SET value=value + 1 WHERE name=?', (name,))
 
 def db_decrement_value(name):
-	db.execute('UPDATE SCGB SET value=value - 1 WHERE name=?', (name,))
-	
+    db.execute('UPDATE SCGB SET value=value - 1 WHERE name=?', (name,))
+
 def db_setup():
     global db
     db = sqlite3.connect(config.stats_database)
@@ -61,21 +61,21 @@ def bot_load_banlist():
     # create banlist if not exists
     if not os.path.exists('banlist.txt'):
         open(config.banlistfile, 'ab').close()
-  
+
     with open(config.banlistfile, 'r') as file:
         for line in file:
             line = line.strip()
             if line == '' or line.startswith('//'):
                 continue # skip empty lines and comments
-   
+
             values = line.split(None, 1)
-    
+
             try:
                 id = int(values[0])
             except ValueError:
                 print('Banlist error: {} is not a user id number'.format(id))
                 continue
-    
+
             if len(values) > 1:
                 banlist[id] = values[1]
             else:
@@ -141,7 +141,7 @@ def bot_repost(url, comment_owner):
         else:
             action = 'delete'
             url = url[1:]
-    
+
     parsed_url = urlparse(url).path.split('/')
     if len(parsed_url) == 4 and parsed_url[2] == 'sets':
         if config.allow_playlists:
@@ -149,7 +149,7 @@ def bot_repost(url, comment_owner):
         else:
             print 'Playlists are not allowed. Skipping.'
             return False
-        
+
     try:
         object = client.get('/resolve', url=url)
     except requests.exceptions.HTTPError as e:
@@ -167,23 +167,23 @@ def bot_repost(url, comment_owner):
     if bot_repost_exists(what, object.id) == (action == 'repost'):
         print 'Already {}ed: {}'.format(action, url)
         return False
-    
+
     if action == 'repost':
         if not bot_track_spam_check(what, track.id):
             return False
-    
+
         print 'Reposting: ' + url
         client.put('/e1/me/{}_reposts/{}'.format(what, object.id))
         db_increment_value('{}_count'.format(what))
     else:
         print 'Removing repost: ' + url
-        client.delete('/e1/me/{}_reposts/'.format(what, object.id))
+        client.delete('/e1/me/{}_reposts/{}'.format(what, object.id))
         db_decrement_value('{}_count'.format(what))
-    
+
     db.commit()
     return True
-    
-    
+
+
 def bot_check():
     update_desc = 0
     # get track from authenticated user
