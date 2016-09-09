@@ -35,7 +35,13 @@ def db_value_exists(name):
 
 def db_delete_value(name):
     db.execute('DELETE FROM SCGB WHERE name=?', name)
+	
+def db_increment_value(name):
+	db.execute('UPDATE SCGB SET value=value + 1 WHERE name=?', (name,))
 
+def db_decrement_value(name):
+	db.execute('UPDATE SCGB SET value=value - 1 WHERE name=?', (name,))
+	
 def db_setup():
     global db
     db = sqlite3.connect(config.stats_database)
@@ -75,21 +81,17 @@ def bot_load_banlist():
             else:
                 banlist[id] = "No reason given."
 
-def bot_track_exists(playlist, track_id):
+def bot_repost_exists(what, id):
     try:
-        if playlist:
-            client.get('/e1/me/playlist_reposts/'+str(track_id))
-        else:
-            client.get('/e1/me/track_reposts/'+str(track_id))
+        client.get('/e1/me/{}_reposts/'.format(what, id))
         return True
-    except requests.exceptions.HTTPError:
-        return False
+    except requests.exceptions.HTTPError as e:
+        if e.response.status_code == 404:
+            return False
+        else:
+            raise
 
-def bot_track_spam_check(playlist, track_id):
-    what = 'track'
-    if playlist:
-        what = 'playlist'
-
+def bot_track_spam_check(what, track_id):
     repost_time_name = what + '_' + str(track_id) + '_repost_time'
 
     if db_value_exists(repost_time_name):
@@ -118,11 +120,11 @@ def bot_update_description():
 
     client.put('/me', **{ 'user[description]': desc })
 
-def bot_repost(track_url, comment_owner):
-    delete = False
-    playlist = False
+def bot_repost(url, comment_owner):
+    what = 'track'
+    action = 'repost'
 
-    if not track_url:
+    if not url:
         print 'Empty URL detected.'
         return False
 
@@ -130,58 +132,58 @@ def bot_repost(track_url, comment_owner):
         print 'Banned user id: ' + str(comment_owner)
         return False
 
-    if track_url[0] == '!':
-        delete = True
-        track_url = track_url[1:]
-
-    test_url = urlparse(track_url).path.split('/')
-    if len(test_url) == 4 and test_url[2] == 'sets':
-        playlist = True
-
-    if playlist and not config.allow_playlists:
-        print 'Playlists are not allowed. Skipping.'
-        return False
-
+    if url.startswith('!'):
+        if not config.only_artist_tracks:
+            print 'Deleting is not allowed when only_artist_tracks = False. Skipping.'
+        elif not config.allow_delete:
+            print 'Deleting is not allowed. Skipping.'
+            return False
+        else:
+            action = 'delete'
+            url = url[1:]
+    
+    parsed_url = urlparse(url).path.split('/')
+    if len(parsed_url) == 4 and parsed_url[2] == 'sets':
+        if config.allow_playlists:
+            what = 'playlist'
+        else:
+            print 'Playlists are not allowed. Skipping.'
+            return False
+        
     try:
-        track = client.get('/resolve', url=track_url)
-    except requests.exceptions.HTTPError:
-        print 'Wrong URL: ' + track_url
-        return False
+        object = client.get('/resolve', url=url)
+    except requests.exceptions.HTTPError as e:
+        if e.response.status_code == 404:
+            print 'Not found URL: ' + url
+            return False
+        else:
+            raise
 
     # ignore non-artists
-    if config.only_artist_tracks and comment_owner != track.user_id:
-        print 'Not an owner of: ' + track_url
+    if config.only_artist_tracks and comment_owner != object.user_id:
+        print 'Not an owner of: ' + url
         return False
 
-    if config.only_artist_tracks and config.allow_delete and delete:
-        if not bot_track_exists(playlist, track.id):
+    if bot_repost_exists(what, object.id) == (action == 'repost'):
+        print 'Already {}ed: {}'.format(action, url)
+        return False
+    
+    if action == 'repost':
+        if not bot_track_spam_check(what, track.id):
             return False
-        print 'Removing repost: ' + track_url
-        if playlist:
-            client.delete('/e1/me/playlist_reposts/'+str(track.id))
-            db_set_value('playlist_count', db_get_value('playlist_count')-1)
-            db.commit()
-        else:
-            client.delete('/e1/me/track_reposts/'+str(track.id))
-            db_set_value('track_count', db_get_value('track_count')-1)
-            db.commit()
-        return True
-
-    if bot_track_exists(playlist, track.id):
-        return False
-    if not bot_track_spam_check(playlist, track.id):
-        return False
-    print 'Reposting: ' + track_url
-    if playlist:
-        client.put('/e1/me/playlist_reposts/'+str(track.id))
-        db_set_value('playlist_count', db_get_value('playlist_count')+1)
-        db.commit()
+    
+        print 'Reposting: ' + url
+        client.put('/e1/me/{}_reposts/{}'.format(what, object.id))
+        db_increment_value('{}_count'.format(what))
     else:
-        client.put('/e1/me/track_reposts/'+str(track.id))
-        db_set_value('track_count', db_get_value('track_count')+1)
-        db.commit()
+        print 'Removing repost: ' + url
+        client.delete('/e1/me/{}_reposts/'.format(what, object.id))
+        db_decrement_value('{}_count'.format(what))
+    
+    db.commit()
     return True
-
+    
+    
 def bot_check():
     update_desc = 0
     # get track from authenticated user
