@@ -173,11 +173,11 @@ def bot_repost(url, comment_owner):
             return False
 
         print 'Reposting: ' + url
-        client.put('/e1/me/{}_reposts/{}'.format(what, object.id))
+        client.put('/e1/me/' + what + '_reposts/' + str(object.id))
         db_increment_value('{}_count'.format(what))
     else:
         print 'Removing repost: ' + url
-        client.delete('/e1/me/{}_reposts/{}'.format(what, object.id))
+        client.delete('/e1/me/' + what + '_reposts/' + str(object.id))
         db_decrement_value('{}_count'.format(what))
 
     db.commit()
