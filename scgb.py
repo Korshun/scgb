@@ -171,7 +171,7 @@ def bot_repost(url, comment_owner):
         return False
 
     if action == 'repost':
-        if not bot_track_spam_check(what, track.id):
+        if not bot_track_spam_check(what, object.id):
             return False
 
         print 'Reposting: ' + url
