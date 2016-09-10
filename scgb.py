@@ -83,7 +83,7 @@ def bot_load_banlist():
 
 def bot_repost_exists(what, id):
     try:
-        client.get('/e1/me/{}_reposts/'.format(what, id))
+        client.get('/e1/me/{}_reposts/{}'.format(what, id))
         return True
     except requests.exceptions.HTTPError as e:
         if e.response.status_code == 404:
@@ -164,7 +164,9 @@ def bot_repost(url, comment_owner):
         print 'Not an owner of: ' + url
         return False
 
-    if bot_repost_exists(what, object.id) == (action == 'repost'):
+    want_to_repost = action == 'repost'
+    is_reposted = bot_repost_exists(what, object.id)
+    if want_to_repost == is_reposted:
         print 'Already {}ed: {}'.format(action, url)
         return False
 
