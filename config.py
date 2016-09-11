@@ -22,7 +22,7 @@ use_advanced_description = True
 keyword_tag='$'
 description_template = '''
 Last update: $last_update$ (UTC)
-This group uses scgb bot v$bot_version$
+This group uses scgb v$bot_version$
 Total tracks: $track_count$
 Total playlists: $playlist_count$
 '''
