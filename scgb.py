@@ -110,13 +110,20 @@ def bot_update_description():
     if not config.use_advanced_description:
         return
 
-    desc = config.description_template.strip()
-    desc = desc.replace(config.keyword_tag + 'last_update' + config.keyword_tag, strftime("%Y-%m-%d %H:%M:%S", gmtime()))
-    desc = desc.replace(config.keyword_tag + 'bot_version' + config.keyword_tag, bot_version)
     track_count = db_get_value('track_count')
-    desc = desc.replace(config.keyword_tag + 'track_count' + config.keyword_tag, str(track_count))
     playlist_count = db_get_value('playlist_count')
-    desc = desc.replace(config.keyword_tag + 'playlist_count' + config.keyword_tag, str(playlist_count))
+    
+    keywords = {
+        'last_update': strftime("%Y-%m-%d %H:%M:%S", gmtime()),
+        'bot_version': bot_version,
+        'track_count': track_count,
+        'playlist_count': playlist_count,
+        'post_count': track_count + playlist_count
+    }
+        
+    desc = config.description_template.strip()
+    for keyword, value in keywords.items():
+        desc = desc.replace(config.keyword_tag + keyword + config.keyword_tag, str(value))
 
     client.put('/me', **{ 'user[description]': desc })
 
