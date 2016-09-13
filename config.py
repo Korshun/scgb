@@ -22,7 +22,7 @@ use_advanced_description = True
 keyword_tag='$'
 description_template = '''
 Last update: $last_update$ (UTC)
-This group uses scgb bot v$bot_version$
+This group uses scgb v$bot_version$
 Total posts: $post_count$
 Tracks posted: $track_count$
 Playlists posted: $playlist_count$
