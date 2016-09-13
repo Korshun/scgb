@@ -13,7 +13,7 @@ from urlparse import urlparse
 from time import gmtime, strftime, time
 import config
 
-bot_version = '1.2.4'
+bot_version = '1.2.5'
 
 client = soundcloud.Client(
     client_id=config.client_id,
