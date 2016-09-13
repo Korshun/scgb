@@ -23,8 +23,9 @@ keyword_tag='$'
 description_template = '''
 Last update: $last_update$ (UTC)
 This group uses scgb bot v$bot_version$
-Total tracks: $track_count$
-Total playlists: $playlist_count$
+Total posts: $post_count$
+Tracks posted: $track_count$
+Playlists posted: $playlist_count$
 '''
 
 #EOF
