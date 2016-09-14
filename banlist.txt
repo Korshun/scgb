@@ -1,4 +1,7 @@
 // Get user id by name: https://helgesverre.com/soundcloud/
 // Example:
-// 12345678 Spam abuse
+// user 12345678 Spam abuse
+// track 12345678 Such tracks are not allowed
+// playlist 12345678
+
 
