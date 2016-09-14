@@ -68,18 +68,23 @@ def bot_load_banlist():
             if line == '' or line.startswith('//'):
                 continue # skip empty lines and comments
 
-            values = line.split(None, 1)
+            values = line.split(None, 2)
 
-            try:
-                id = int(values[0])
-            except ValueError:
-                print('Banlist error: {} is not a user id number'.format(id))
+            what = values[0]
+            if what not in ['user', 'track', 'playlist']:
+                print('Banlist error: unknown ban type: {}'.format(what))
                 continue
 
-            if len(values) > 1:
-                banlist[id] = values[1]
+            try:
+                id = int(values[1])
+            except ValueError:
+                print('Banlist error: {} is not a {} id number'.format(id, what))
+                continue
+
+            if len(values) > 2:
+                banlist[what][id] = values[2]
             else:
-                banlist[id] = "No reason given."
+                banlist[what][id] = "No reason given."
 
 def bot_repost_exists(what, id):
     try:
@@ -135,7 +140,7 @@ def bot_repost(url, comment_owner):
         print 'Empty URL detected.'
         return False
 
-    if comment_owner in banlist:
+    if comment_owner in banlist['user']:
         print 'Banned user id: ' + str(comment_owner)
         return False
 
@@ -165,6 +170,9 @@ def bot_repost(url, comment_owner):
             return False
         else:
             raise
+
+    if object.user_id in banlist[what]:
+        print 'Banned {} id: {} (user id: {})'.format(what, object.user_id, comment_owner)
 
     # ignore non-artists
     if config.only_artist_tracks and comment_owner != object.user_id:
