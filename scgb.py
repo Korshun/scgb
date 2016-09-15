@@ -171,7 +171,7 @@ def bot_repost(url, comment_owner):
         else:
             raise
 
-    if object.user_id in banlist[what]:
+    if object.id in banlist[what]:
         print 'Banned {} id: {} (user id: {})'.format(what, object.user_id, comment_owner)
 
     # ignore non-artists
