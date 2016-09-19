@@ -1,5 +1,7 @@
 # SoundCloud Group Bot
 
+![logo](http://postimg.ru/img/2016-09/19/71upsxobvpvfqvrwfb9gixg7y.png)
+
 # What you need:
 - [Python 2.7](https://www.python.org/downloads/)
 - open admin terminal (Windows: right click cmd.exe -> "Run as administrator")
