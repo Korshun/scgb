@@ -19,13 +19,16 @@ bot_version = '1.2.5'
 def bot_init():
     global config
     global client
+    global workdir
 
     if len(sys.argv) > 1:
         config = imp.load_source('scgb_config', sys.argv[1])
     else:
         config = imp.load_source('scgb_config', os.path.join(os.getcwd(), 'config.py'))
     if len(sys.argv) > 2:
-        os.chdir(sys.argv[2])
+        workdir = sys.argv[2]
+    else:
+        workdir = os.getcwd()
 
     client = soundcloud.Client(
         client_id=config.client_id,
@@ -56,7 +59,7 @@ def db_decrement_value(name):
 
 def db_setup():
     global db
-    db = sqlite3.connect(config.stats_database)
+    db = sqlite3.connect(os.path.join(workdir, config.stats_database))
     db.execute('''
 CREATE TABLE IF NOT EXISTS SCGB
 (
@@ -71,10 +74,11 @@ CREATE TABLE IF NOT EXISTS SCGB
 
 def bot_load_banlist():
     # create banlist if not exists
-    if not os.path.exists('banlist.txt'):
-        open(config.banlistfile, 'ab').close()
+    banfile = os.path.join(workdir, config.banlistfile)
+    if not os.path.exists(banfile):
+        open(banfile, 'ab').close()
 
-    with open(config.banlistfile, 'r') as file:
+    with open(banfile, 'r') as file:
         for line in file:
             line = line.strip()
             if line == '' or line.startswith('//'):
