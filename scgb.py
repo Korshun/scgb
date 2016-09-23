@@ -241,10 +241,11 @@ def bot_check():
         bot_update_description()
 
 if __name__ == '__main__':
-    global config = imp.load_source('scgb_config', sys.argv[1])
-    if not config:
-        imp.load_source('scgb_config', os.getcwd() + 'config.py')
-    if sys.argv[2]:
+    if len(sys.argv) >= 1:
+        global config = imp.load_source('scgb_config', sys.argv[1])
+        if not config:
+            imp.load_source('scgb_config', os.getcwd() + 'config.py')
+    if len(sys.argv) >= 2:
         os.chdir(sys.argv[2])
 
     bot_load_banlist()
