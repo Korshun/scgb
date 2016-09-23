@@ -14,7 +14,7 @@ import sqlite3
 from urlparse import urlparse
 from time import gmtime, strftime, time
 
-bot_version = '1.2.6'
+bot_version = '1.2.6fix'
 
 def bot_init():
     global config
