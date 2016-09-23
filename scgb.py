@@ -237,11 +237,11 @@ def bot_init():
     global config
     global client
 
-    if len(sys.argv) >= 1:
+    if len(sys.argv) > 1:
         config = imp.load_source('scgb_config', sys.argv[1])
         if not config:
             imp.load_source('scgb_config', os.getcwd() + 'config.py')
-    if len(sys.argv) >= 2:
+    if len(sys.argv) > 2:
         os.chdir(sys.argv[2])
 
     client = soundcloud.Client(
