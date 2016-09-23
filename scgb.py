@@ -25,17 +25,12 @@ def bot_init():
     else:
         config = imp.load_source('scgb_config', os.path.join(os.getcwd(), 'config.py'))
 
-    try:
-        client = soundcloud.Client(
-            client_id=config.client_id,
-            client_secret=config.client_secret,
-            username=config.username,
-            password=config.password
-        )
-    except requests.exceptions.HTTPError as e:
-        if e.response.status_code != 401:
-            print e
-            return
+    client = soundcloud.Client(
+        client_id=config.client_id,
+        client_secret=config.client_secret,
+        username=config.username,
+        password=config.password
+    )
 
 banlist = {}
 
