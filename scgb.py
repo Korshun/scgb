@@ -198,6 +198,9 @@ def bot_repost(url, comment_owner):
     if action == 'repost':
         if not bot_track_spam_check(what, object.id):
             return False
+        if config.allowed_genres is not None and object.genre not in config.allowed_genres:
+            print 'Genere not allowed: {}'.format(object.genre)
+            return False
 
         print 'Reposting: ' + url
         client.put('/e1/me/' + what + '_reposts/' + str(object.id))

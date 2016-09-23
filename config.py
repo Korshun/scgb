@@ -13,6 +13,9 @@ max_repost_interval=60 * 60 * 24
 stats_database='scgb-stats.db'
 banlistfile='banlist.txt'
 
+# See genres.txt for available soundcloud default genres, if 'allowed_genres = None' then all genres are allowed
+allowed_genres = None
+
 # WARNING IF YOU POST MORE THAN ONE TRACK:
 # posting a new original track will increase every other track's id by one.
 # So you need to increase post_track_id by 1 after posting a new original track from the group's account.
