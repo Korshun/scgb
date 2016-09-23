@@ -200,9 +200,11 @@ def bot_repost(url, comment_owner):
         return False
 
     if action == 'repost':
-        if config.allowed_genres is not None and object.genre not in config.allowed_genres:
-            print 'Genere not allowed: {}'.format(object.genre)
-            return False
+        if config.allowed_genres is not None:
+            genres_lowercase = [ genre.lower() for genre in config.allowed_genres ]
+            if object.genre.lower() not in genres_lowercase:
+                print 'Genere not allowed: {}'.format(object.genre)
+                return False
         if not bot_track_spam_check(what, object.id):
             return False
 
