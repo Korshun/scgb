@@ -16,13 +16,6 @@ from time import gmtime, strftime, time
 
 bot_version = '1.2.5'
 
-client = soundcloud.Client(
-    client_id=config.client_id,
-    client_secret=config.client_secret,
-    username=config.username,
-    password=config.password
-)
-
 banlist = {}
 
 def db_get_value(name):
@@ -240,8 +233,10 @@ def bot_check():
     if update_desc > 0:
         bot_update_description()
 
-if __name__ == '__main__':
+def bot_init():
     global config
+    global client
+
     if len(sys.argv) >= 1:
         config = imp.load_source('scgb_config', sys.argv[1])
         if not config:
@@ -249,6 +244,15 @@ if __name__ == '__main__':
     if len(sys.argv) >= 2:
         os.chdir(sys.argv[2])
 
+    client = soundcloud.Client(
+        client_id=config.client_id,
+        client_secret=config.client_secret,
+        username=config.username,
+        password=config.password
+    )
+
+if __name__ == '__main__':
+    bot_init()
     bot_load_banlist()
     db_setup()
     print strftime("[%Y-%m-%d %H:%M:%S]", gmtime()) + ' Reposting songs from the comments.'
