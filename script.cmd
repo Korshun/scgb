@@ -1,5 +1,5 @@
 @echo off
 :refresh
 py scgb.py >> updates.log
-timeout 60
+timeout 120
 goto refresh

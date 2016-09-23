@@ -3,7 +3,7 @@
 while true
 do
 python scgb.py >> updates.log
-sleep 60
+sleep 120
 done
 
 #EOF
