@@ -241,8 +241,9 @@ def bot_check():
         bot_update_description()
 
 if __name__ == '__main__':
+    global config
     if len(sys.argv) >= 1:
-        global config = imp.load_source('scgb_config', sys.argv[1])
+        config = imp.load_source('scgb_config', sys.argv[1])
         if not config:
             imp.load_source('scgb_config', os.getcwd() + 'config.py')
     if len(sys.argv) >= 2:
