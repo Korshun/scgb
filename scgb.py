@@ -32,7 +32,11 @@ def bot_init():
         password=config.password
     )
 
-banlist = {}
+banlist = {
+    'user': [],
+    'track': [],
+    'playlist': [],
+}
 
 def db_get_value(name):
     return db.execute('SELECT value FROM SCGB WHERE name=?', (name,)).fetchone()[0]
@@ -196,10 +200,10 @@ def bot_repost(url, comment_owner):
         return False
 
     if action == 'repost':
-        if not bot_track_spam_check(what, object.id):
-            return False
         if config.allowed_genres is not None and object.genre not in config.allowed_genres:
             print 'Genere not allowed: {}'.format(object.genre)
+            return False
+        if not bot_track_spam_check(what, object.id):
             return False
 
         print 'Reposting: ' + url
