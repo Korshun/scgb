@@ -33,9 +33,9 @@ def bot_init():
     )
 
 banlist = {
-    'user': [],
-    'track': [],
-    'playlist': [],
+    'user': {},
+    'track': {},
+    'playlist': {},
 }
 
 def db_get_value(name):
