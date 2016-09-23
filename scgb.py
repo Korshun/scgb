@@ -8,10 +8,11 @@ import requests
 import time
 import datetime
 import os
+import sys
+import imp
 import sqlite3
 from urlparse import urlparse
 from time import gmtime, strftime, time
-import config
 
 bot_version = '1.2.5'
 
