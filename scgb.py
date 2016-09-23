@@ -23,7 +23,7 @@ def bot_init():
     if len(sys.argv) > 1:
         config = imp.load_source('scgb_config', sys.argv[1])
     else:
-        imp.load_source('scgb_config', os.path.join(os.getcwd(), 'config.py'))
+        config = imp.load_source('scgb_config', os.path.join(os.getcwd(), 'config.py'))
     if len(sys.argv) > 2:
         os.chdir(sys.argv[2])
 
