@@ -17,6 +17,7 @@ from time import gmtime, strftime, time
 bot_version = '1.2.7'
 
 def bot_init():
+    tokenfile_name = 'token.txt'
     global config
     global client
 
@@ -25,13 +26,23 @@ def bot_init():
     else:
         config = imp.load_source('scgb_config', os.path.join(os.getcwd(), 'config.py'))
 
-    client = soundcloud.Client(
-        client_id=config.client_id,
-        client_secret=config.client_secret,
-        username=config.username,
-        password=config.password
-    )
-    
+    try:
+        client = soundcloud.Client(
+            client_id=config.client_id,
+            client_secret=config.client_secret,
+            username=config.username,
+            password=config.password
+        )
+        tokenfile = open(tokenfile_name, 'w+')
+        tokenfile.write(client.access_token)
+        tokenfile.close()
+    except requests.exceptions.HTTPError as e:
+        if e.response.status_code == 401:
+            tokenfile = open(tokenfile_name, 'r')
+            client = soundcloud.Client(access_token=tokenfile.readline())
+            tokenfile.close()
+        else:
+            raise
 
 banlist = {
     'user': {},
