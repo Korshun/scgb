@@ -14,7 +14,7 @@ import sqlite3
 from urlparse import urlparse
 from time import gmtime, strftime, time
 
-bot_version = '1.2.6fix'
+bot_version = '1.2.7'
 
 def bot_init():
     global config
@@ -178,6 +178,9 @@ def bot_repost(url, comment_owner):
 
     try:
         object = client.get('/resolve', url=url)
+        if not hasattr(object, "user_id"):
+            print("Not a track or playlist!")
+            return False
     except requests.exceptions.HTTPError as e:
         if e.response.status_code == 404:
             print 'Not found URL: ' + url
