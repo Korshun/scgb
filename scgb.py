@@ -31,7 +31,7 @@ def bot_init():
         username=config.username,
         password=config.password
     )
-    client.authorize_url(scope='non-expiring')
+    
 
 banlist = {
     'user': {},
