@@ -21,8 +21,10 @@ allowed_genres = None
 # So you need to increase post_track_id by 1 after posting a new original track from the group's account.
 post_track_id=0
 
-use_advanced_description = True
+# 1 = replace the whole description, 2 = put 'description_template' after 'stats_keyword'
+use_advanced_description = 2
 keyword_tag='$'
+stats_keyword='Stats:'
 description_template = '''
 Last update: $last_update$ (UTC)
 This group uses scgb v$bot_version$

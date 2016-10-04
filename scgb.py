@@ -14,7 +14,7 @@ import sqlite3
 from urlparse import urlparse
 from time import gmtime, strftime, time
 
-bot_version = '1.2.7'
+bot_version = '1.2.8'
 
 def bot_init():
     global config
@@ -145,7 +145,14 @@ def bot_update_description():
     for keyword, value in keywords.items():
         desc = desc.replace(config.keyword_tag + keyword + config.keyword_tag, str(value))
 
-    client.put('/me', **{ 'user[description]': desc })
+    if use_advanced_description == 1:
+        client.put('/me', **{ 'user[description]': desc })
+    else if use_advanced_description == 2:
+        original = client.get('/me/description')
+        new_desc, _ = original.split(config.stats_keyword, 1)
+        new_desc += '\n' + config.stats_keyword + '\n'
+        new_desc += desc
+        client.put('/me', **{ 'user[description]': new_desc })
 
 def bot_repost(url, comment_owner):
     what = 'track'
