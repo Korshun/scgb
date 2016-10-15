@@ -145,9 +145,9 @@ def bot_update_description():
     for keyword, value in keywords.items():
         desc = desc.replace(config.keyword_tag + keyword + config.keyword_tag, str(value))
 
-    if use_advanced_description == 1:
+    if config.use_advanced_description == 1:
         client.put('/me', **{ 'user[description]': desc })
-    elif use_advanced_description == 2:
+    elif config.use_advanced_description == 2:
         original = client.get('/me/description')
         new_desc, _ = original.split(config.stats_keyword, 1)
         new_desc += '\n' + config.stats_keyword + '\n'
