@@ -233,9 +233,12 @@ def bot_repost(url, comment_owner):
         print 'Not an owner of: ' + url
         return False
 
-    want_to_repost = action == 'repost' or action == 'refresh'
+    want_to_repost = action == 'repost'
     is_reposted = bot_repost_exists(what, object.id)
-    if want_to_repost == is_reposted:
+    if action == 'refresh' and not is_reposted:
+        print 'Track is not posted. Could not refresh: {}'.format(url)
+        return False
+    elif want_to_repost == is_reposted:
         print 'Already {}ed: {}'.format(action, url)
         return False
 
