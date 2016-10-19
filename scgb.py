@@ -154,6 +154,24 @@ def bot_update_description():
         new_desc += desc
         client.put('/me', **{ 'user[description]': new_desc })
 
+def bot_do_repost(object, what, url):
+    if config.allowed_genres is not None:
+        genres_lowercase = [ genre.lower() for genre in config.allowed_genres ]
+        if object.genre.lower() not in genres_lowercase:
+            print 'Genere not allowed: {}'.format(object.genre)
+            return False
+    if not bot_track_spam_check(what, object.id):
+        return False
+
+    print 'Reposting: ' + url
+    client.put('/e1/me/' + what + '_reposts/' + str(object.id))
+    db_increment_value('{}_count'.format(what))
+
+def bot_do_delete(object, what, url)
+    print 'Removing repost: ' + url
+    client.delete('/e1/me/' + what + '_reposts/' + str(object.id))
+    db_decrement_value('{}_count'.format(what))
+
 def bot_repost(url, comment_owner):
     what = 'track'
     action = 'repost'
@@ -174,6 +192,16 @@ def bot_repost(url, comment_owner):
             return False
         else:
             action = 'delete'
+            url = url[1:]
+
+    if url.startswith('^'):
+        if not config.only_artist_tracks:
+            print 'Refreshing is not allowed when only_artist_tracks = False. Skipping.'
+        elif not config.allow_delete:
+            print 'Refreshing is not allowed when allow_delete = False. Skipping.'
+            return False
+        else:
+            action = 'refresh'
             url = url[1:]
 
     parsed_url = urlparse(url).path.split('/')
@@ -198,38 +226,29 @@ def bot_repost(url, comment_owner):
 
     if object.id in banlist[what]:
         print 'Banned {} id: {} (user id: {})'.format(what, object.user_id, comment_owner)
+        return False
 
     # ignore non-artists
     if config.only_artist_tracks and comment_owner != object.user_id:
         print 'Not an owner of: ' + url
         return False
 
-    want_to_repost = action == 'repost'
+    want_to_repost = action == 'repost' or action == 'refresh'
     is_reposted = bot_repost_exists(what, object.id)
     if want_to_repost == is_reposted:
         print 'Already {}ed: {}'.format(action, url)
         return False
 
     if action == 'repost':
-        if config.allowed_genres is not None:
-            genres_lowercase = [ genre.lower() for genre in config.allowed_genres ]
-            if object.genre.lower() not in genres_lowercase:
-                print 'Genere not allowed: {}'.format(object.genre)
-                return False
-        if not bot_track_spam_check(what, object.id):
-            return False
-
-        print 'Reposting: ' + url
-        client.put('/e1/me/' + what + '_reposts/' + str(object.id))
-        db_increment_value('{}_count'.format(what))
-    else:
-        print 'Removing repost: ' + url
-        client.delete('/e1/me/' + what + '_reposts/' + str(object.id))
-        db_decrement_value('{}_count'.format(what))
+        bot_do_repost(object, what, url)
+    elif action == 'delete':
+        bot_do_delete(object, what, url)
+    elif action == 'refresh':
+        bot_do_delete(object, what, url)
+        bot_do_repost(object, what, url)
 
     db.commit()
     return True
-
 
 def bot_check():
     update_desc = 0
