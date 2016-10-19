@@ -199,8 +199,7 @@ def bot_repost(url, comment_owner):
         else:
             action = 'delete'
             url = url[1:]
-
-    if url.startswith('^'):
+    elif url.startswith('^'):
         if not config.only_artist_tracks:
             print 'Refreshing is not allowed when only_artist_tracks = False. Skipping.'
         elif not config.allow_delete:
