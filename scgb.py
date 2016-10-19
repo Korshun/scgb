@@ -149,28 +149,34 @@ def bot_update_description():
         client.put('/me', **{ 'user[description]': desc })
     elif config.use_advanced_description == 2:
         original = client.get('/me').description
+        if not original:
+            return
         new_desc, _ = original.split(config.stats_keyword, 1)
         new_desc += '\n' + config.stats_keyword + '\n'
         new_desc += desc
         client.put('/me', **{ 'user[description]': new_desc })
 
-def bot_do_repost(object, what, url):
+def bot_do_repost(object, what, url, refresh=False):
     if config.allowed_genres is not None:
         genres_lowercase = [ genre.lower() for genre in config.allowed_genres ]
         if object.genre.lower() not in genres_lowercase:
             print 'Genere not allowed: {}'.format(object.genre)
             return False
-    if not bot_track_spam_check(what, object.id):
+    if not refresh and not bot_track_spam_check(what, object.id):
         return False
 
     print 'Reposting: ' + url
     client.put('/e1/me/' + what + '_reposts/' + str(object.id))
     db_increment_value('{}_count'.format(what))
+    return True
 
-def bot_do_delete(object, what, url)
+def bot_do_delete(object, what, url, refresh=False):
+    if refresh and not bot_track_spam_check(what, object.id):
+        return False
     print 'Removing repost: ' + url
     client.delete('/e1/me/' + what + '_reposts/' + str(object.id))
     db_decrement_value('{}_count'.format(what))
+    return True
 
 def bot_repost(url, comment_owner):
     what = 'track'
@@ -243,12 +249,16 @@ def bot_repost(url, comment_owner):
         return False
 
     if action == 'repost':
-        bot_do_repost(object, what, url)
+        if not bot_do_repost(object, what, url):
+            return False
     elif action == 'delete':
-        bot_do_delete(object, what, url)
+        if not bot_do_delete(object, what, url):
+            return False
     elif action == 'refresh':
-        bot_do_delete(object, what, url)
-        bot_do_repost(object, what, url)
+        if not bot_do_delete(object, what, url, refresh=True):
+            return False
+        if not bot_do_repost(object, what, url, refresh=True):
+            return False
 
     db.commit()
     return True
