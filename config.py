@@ -8,7 +8,7 @@ only_artist_tracks = True
 allow_delete = True
 allow_playlists = True
 
-max_repost_interval=60 * 60 * 24
+min_bump_interval=60 * 60 * 24
 
 stats_database='scgb-stats.db'
 banlistfile='banlist.txt'

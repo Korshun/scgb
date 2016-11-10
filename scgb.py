@@ -218,7 +218,7 @@ def process_comment(comment):
             return 'This genre is not allowed in this group. Allowed genres are: ' + ', '.join(config.allowed_genres)
     
         # Resource spam protection
-        if db.last_repost_time(resource_type, resource.id) > int(time()) - config.max_repost_interval:
+        if db.last_repost_time(resource_type, resource.id) > int(time()) - config.min_bump_interval:
             logging.info('Resource spam protection triggered.')
             return 'This {} is being posted too frequently to the group. Try again later.'.format(resource_type)
             
