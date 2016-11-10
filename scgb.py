@@ -5,7 +5,7 @@
 
 from soundcloud import Client as Soundcloud
 from requests import HTTPError
-from time import time
+from time import strftime, time, gmtime
 
 import logging
 import os
