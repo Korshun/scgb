@@ -131,7 +131,7 @@ def check_comments():
             soundcloud.delete('/tracks/' + str(group_track.id) + '/comments/' + str(comment.id))
         except HTTPError as e:
             if e.response.status_code == 404:
-                logging.warn('Nothing to delete: %s', comment.body)
+                logging.warning('Nothing to delete: %s', comment.body)
             else:
                 raise
 
@@ -311,7 +311,8 @@ def update_description():
         new_desc += desc
         soundcloud.put('/me', **{ 'user[description]': new_desc })
     else:
-        logging.warn('Unknown value %d for use_advanced_description', config.use_advanced_description)
+        logging.warning('Unknown value %d for use_advanced_description', config.use_advanced_description)
+        return
 
     logging.info('Description updated')
     
