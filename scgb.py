@@ -307,7 +307,7 @@ def update_description():
             return
             
         new_desc, _ = original.split(config.stats_keyword, 1)
-        new_desc += '\n' + config.stats_keyword + '\n'
+        new_desc += config.stats_keyword + '\n'
         new_desc += desc
         soundcloud.put('/me', **{ 'user[description]': new_desc })
     else:
