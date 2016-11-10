@@ -6,7 +6,7 @@ PRAGMA user_version={user_version};
 CREATE TABLE ResourceCounts
 (
     resource_type TEXT,
-	count INTEGER NOT NULL,
+	count INTEGER,
 	
 	PRIMARY KEY(resource_type)
 );
@@ -19,9 +19,9 @@ CREATE TABLE Reposts
 ( 
 	resource_type TEXT, 
 	resource_id INTEGER, 
-	last_reposted_at INTEGER NOT NULL, 
-	deleted INTEGER NOT NULL, 
-	user_id INTEGER NOT NULL,
+	last_reposted_at INTEGER, 
+	deleted INTEGER, 
+	user_id INTEGER,
 	
 	PRIMARY KEY(resource_type, resource_id)
 ); 
