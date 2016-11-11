@@ -110,7 +110,7 @@ def check_comments():
         
     # Process each comment and delete it
     for comment in reversed(comments):    
-        logging.info('Processing a comment by user %d (%s):\n%s', comment.user_id, comment.user['username'], comment.body)
+        logging.info('Processing a comment by user %d (%s): %s', comment.user_id, comment.user['username'], comment.body)
         response = None
         
         # Try to process the comment
@@ -125,7 +125,7 @@ def check_comments():
             logging.exception('Failed to process comment:')
         else:
             if response:
-                logging.info('The comment would have this response:\n%s', response)
+                logging.info('The comment would have this response: %s', response) 
             else:
                 logging.info('Comment processed successfully')
             
@@ -166,39 +166,22 @@ def process_comment(comment):
             url = url[1:]
 
     # Resolve the resource to repost
-    try:
-        resource = soundcloud.get('/resolve', url=url)
-    except HTTPError as e:
-        if e.response.status_code == 404:
-            logging.info('Not found URL: %s', url)
-            return 'The provided link does not lead to a track or playlist.'
-        else:
-            raise
-    
-    # Verify that it is actually a track or playlist.
-    # Since /resolve does not return the resource type,
-    # use properties to detect the type.
-    if hasattr(resource, 'playlist_type'):
-        # Only playlists have playlist_type
-        resource_type = 'playlist'
-        logging.info('Resolved: playlist %d', resource.id)
-        
-        if not config.allow_playlists:
+    resource = resolve_resource(url)
+    if resource:
+        logging.info('Resolved: %s %d', resource.kind, resource.id)
+        if resource.kind == 'playlist' and not config.allow_playlists:
             logging.info('Playlists are not allowed. Skipping.')
-            return 'Playlists are not allowed in this group'
-            
-    elif hasattr(resource, 'genre'):
-        # Both tracks and playlists have genre.
-        resource_type = 'track'
-        logging.info('Resolved: track %d', resource.id)
+            return 'Playlists are not allowed in this group.'
     else:
-        logging.info('Not a track or playlist!')
+        logging.info('Not found')
+            
+    if not resource or resource.kind not in ('track', 'playlist'):
         if config.allow_playlists:
             return 'The provided link does not lead to a track or playlist.'
         else:
             return 'The provided link does not lead to a track.'
-                
     
+    resource_type = resource.kind
                 
     # Is the resource banned?
     if resource.id in banlist[resource_type]:
@@ -224,7 +207,7 @@ def process_comment(comment):
         last_reposted = db.last_repost_time(resource_type, resource.id)
         if last_reposted > int(time()) - config.min_bump_interval:
             logging.info('This %s was posted %d seconds ago, but minimum bump interval is %d.', resource_type, int(time()) - last_reposted, config.min_bump_interval)
-            return 'This {} is being posted too frequently to the group. Try again later.'.format(resource_type)
+            return 'This {} is posted to the group too frequently. Try again later.'.format(resource_type)
             
         # Execute the command
         if is_reposted:
@@ -246,7 +229,18 @@ def process_comment(comment):
     else:
         assert False, 'Unknown action: ' + repr(action)
             
+def resolve_resource(url):
+    """Return the resource object downloaded from url, or None, if not found."""
+    try:
+        resource = soundcloud.get('/resolve', url=url)
+    except HTTPError as e:
+        if e.response.status_code == 404:
+            return None
+        else:
+            raise
             
+    return resource
+
 def check_repost_exists(type, id):
     """Return true if the respost exists, according to soundcloud.
     
