@@ -211,6 +211,10 @@ def process_comment(comment):
             
         # Execute the command
         if is_reposted:
+            if not config.allow_delete:
+                logging.warning('Refreshing is not allowed when allow_delete = False. Skipping.')
+                return 'Bumping is not allowed in this group.'
+                
             logging.info('Bumping:')
             group_delete(comment.user_id, resource_type, resource.id)
             group_repost(comment.user_id, resource_type, resource.id)
