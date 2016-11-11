@@ -38,8 +38,11 @@ def bot_init():
     # Init config
     if len(sys.argv) > 1:
         config = imp.load_source('scgb_config', sys.argv[1])
-    else:
+    elif os.path.exists('config.py'):
         config = imp.load_source('scgb_config', os.path.join(os.getcwd(), 'config.py'))
+    else:
+        logging.critical('Please, rename config.py.template to config.py and edit it.\nOr specify a config to load on the command line: py scgb.py <config file>')
+        sys.exit(1)
         
     # Init database
     db = Database(config.stats_database)
