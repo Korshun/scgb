@@ -160,7 +160,7 @@ def process_comment(comment):
         #    return 'Deleting reposts is not allowed in this group.'
         if not config.allow_delete:
             logging.info('Deleting is not allowed. Skipping.')
-            return 'Deleting reposts is not allowed in this group.'
+            return 'Deleting is not allowed in this group.'
         else:
             action = 'delete'
             url = url[1:]
