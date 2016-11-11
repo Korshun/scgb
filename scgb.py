@@ -14,7 +14,7 @@ import imp
 
 from scgb.database import Database
 
-BOT_VERSION = '1.2.9'
+BOT_VERSION = '1.3.0-BETA'
 
 banlist = {
     'user': {},
@@ -107,7 +107,7 @@ def check_comments():
         
     # Process each comment and delete it
     for comment in reversed(comments):    
-        logging.info('Processing a comment by user %d: %s', comment.user_id, comment.body)
+        logging.info('Processing a comment by user %d (%s):\n%s', comment.user_id, comment.user['username'], comment.body)
         response = None
         
         # Try to process the comment
@@ -115,16 +115,16 @@ def check_comments():
             response = process_comment(comment)
         except HTTPError as e:
             if e.response.status_code // 100 == 4:
-                logging.exception('Failed to process comment due to a request bug:')
+                logging.exception('Failed to process comment due to a client request error:')
             else:
                 raise
         except Exception as e: # Program crash
             logging.exception('Failed to process comment:')
         else:
             if response:
-                logging.info('The comment would have this response: %s', response)
+                logging.info('The comment would have this response:\n%s', response)
             else:
-                logging.info('Processed successfully')
+                logging.info('Comment processed successfully')
             
         # Delete the processed comment
         try:
@@ -217,14 +217,15 @@ def process_comment(comment):
                 logging.info('Genre not allowed: %s', resource.genre)
             return 'This genre is not allowed in this group. Allowed genres are: ' + ', '.join(config.allowed_genres)
     
-        # Resource spam protection
-        if db.last_repost_time(resource_type, resource.id) > int(time()) - config.min_bump_interval:
-            logging.info('Resource spam protection triggered.')
+        # Enforce minimum bump interval
+        last_reposted =	db.last_repost_time(resource_type, resource.id)
+        if last_reposted > int(time()) - config.min_bump_interval:
+            logging.info('This %s was posted %d seconds ago, but minimum bump interval is %d.', resource_type, int(time()) - last_reposted, config.min_bump_interval)
             return 'This {} is being posted too frequently to the group. Try again later.'.format(resource_type)
             
         # Execute the command
         if is_reposted:
-            logging.info('Bumping')
+            logging.info('Bumping:')
             group_delete(comment.user_id, resource_type, resource.id)
             group_repost(comment.user_id, resource_type, resource.id)
         else:

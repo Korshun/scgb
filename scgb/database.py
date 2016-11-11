@@ -3,7 +3,7 @@ _schema = """
 PRAGMA application_id={application_id};
 PRAGMA user_version={user_version};
 
-CREATE TABLE ResourceCounts
+CREATE TABLE RepostCounts
 (
     resource_type TEXT,
 	count INTEGER,
@@ -11,7 +11,7 @@ CREATE TABLE ResourceCounts
 	PRIMARY KEY(resource_type)
 );
 
-INSERT INTO ResourceCounts (resource_type, count) VALUES
+INSERT INTO RepostCounts (resource_type, count) VALUES
 ('track', 0),
 ('playlist', 0);
 
@@ -61,11 +61,11 @@ class Database:
 	
 	@property
 	def track_count(self):
-		return self.sqlite.execute("SELECT count FROM ResourceCounts WHERE resource_type='track'").fetchone()[0]
+		return self.sqlite.execute("SELECT count FROM RepostCounts WHERE resource_type='track'").fetchone()[0]
 		
 	@property
 	def playlist_count(self):
-		return self.sqlite.execute("SELECT count FROM ResourceCounts WHERE resource_type='playlist'").fetchone()[0]
+		return self.sqlite.execute("SELECT count FROM RepostCounts WHERE resource_type='playlist'").fetchone()[0]
 		
 	def log_action(self, user_id, action, resource_type, resource_id):
 		"""Record a successful user action to the database."""
@@ -88,7 +88,7 @@ class Database:
 			raise ValueError('Unknown action ' + repr(action))
 			
 		self.sqlite.execute("""
-			UPDATE ResourceCounts SET count=count + ? WHERE resource_type=?""",
+			UPDATE RepostCounts SET count=count + ? WHERE resource_type=?""",
 			(change, resource_type))
 			
 	def mark_as_deleted(self, resource_type, resource_id):
