@@ -49,13 +49,19 @@ def bot_init():
     load_banlist()
     
     # Init soundcloud client
-    soundcloud = Soundcloud(
-        client_id=config.client_id,
-        client_secret=config.client_secret,
-        username=config.username,
-        password=config.password
-    )
-    
+    try:
+        soundcloud = Soundcloud(
+            client_id=config.client_id,
+            client_secret=config.client_secret,
+            username=config.username,
+            password=config.password
+        )
+    except HTTPError as e:
+        if e.response.status_code == 401:
+            logging.critical('Incorrect API key, login or password. Please, edit config.py.')
+            sys.exit(1)
+        else:
+            raise
 
 def load_banlist():
     """Load the banlist."""
