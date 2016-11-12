@@ -1,0 +1,12 @@
+*Please repost this track to let artists know that groups are back!*
+
+- Comments are automatically checked every two minutes.
+- Only the tracks you made are reposted.
+- All comments on this track are automatically removed.
+- If you try to post an already posted track, it will be bumped to the top.
+- A track or playlist won't be bumped/reposed if it was bumped/reposted less than 24 hours ago.
+
+You can repost playlists too! Use them, if you want to post multiple tracks.
+
+Put '!' before the link to remove the track or playlist from this group.
+Example: !http://link.to/your/track
