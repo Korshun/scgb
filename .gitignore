@@ -1,2 +1,6 @@
+config.py
 *.pyc
 *.pyo
+*.db
+*.sqlite3
+*.sqlite
