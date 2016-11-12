@@ -155,9 +155,9 @@ def process_comment(comment):
     url = comment.body
     action = 'repost'
     if url.startswith('!'):
-        #if not config.only_artist_tracks:
-        #    logging.info('Deleting is not allowed when only_artist_tracks = False. Skipping.')
-        #    return 'Deleting reposts is not allowed in this group.'
+        if not config.only_artist_tracks:
+            logging.info('Deleting is not allowed when only_artist_tracks = False. Skipping.')
+            return 'Deleting reposts is not allowed in this group.'
         if not config.allow_delete:
             logging.info('Deleting is not allowed. Skipping.')
             return 'Deleting is not allowed in this group.'
