@@ -20,6 +20,10 @@ banlist = {
     'playlist': {},
 }
 
+config = None
+db = None
+soundcloud = None
+
 should_update_description = False
 
 
@@ -320,4 +324,6 @@ def update_description():
         logging.warning('Unknown value %d for use_advanced_description', config.use_advanced_description)
         return
 
+    global should_update_description
+    should_update_description = False
     logging.info('Description updated')
