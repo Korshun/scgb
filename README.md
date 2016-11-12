@@ -2,6 +2,11 @@
 
 ![logo](http://postimg.ru/img/2016-09/19/71upsxobvpvfqvrwfb9gixg7y.png)
 
+# Project branches
+
+- `stable` - tested and working version of the bot (trecommended)
+- `master` - beta and lastest version
+
 # What you need:
 - [Python 2.7](https://www.python.org/downloads/)
 - open admin terminal (Windows: right click cmd.exe -> "Run as administrator")
@@ -24,4 +29,3 @@ password='account_password'
 Run `script.cmd` (windows) or `script.sh` (linux). 
 
 Example group: https://soundcloud.com/losttalentgroup
-
