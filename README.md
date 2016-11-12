@@ -4,7 +4,7 @@
 
 # Project branches
 
-- `stable` - tested and working version of the bot (trecommended)
+- `stable` - tested and working version of the bot (recommended)
 - `master` - beta and lastest version
 
 # What you need:
