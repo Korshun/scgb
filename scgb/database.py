@@ -38,7 +38,7 @@ from time import time
 _APPLICATION_ID = (ord('S')<<24) + (ord('C')<<16) + (ord('G')<<8) + ord('B')
 _DB_VERSION = 1
 
-class Database:
+class Database(object):
     """An SCGB database."""
 
     def __init__(self, filename):
