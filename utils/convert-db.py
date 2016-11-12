@@ -17,8 +17,8 @@ def convert_db(inputfile, outputfile):
 	track_count = input.execute("SELECT value FROM SCGB WHERE name='track_count'").fetchone()[0]
 	playlist_count = input.execute("SELECT value FROM SCGB WHERE name='playlist_count'").fetchone()[0]
 	
-	db.sqlite.execute("UPDATE ResourceCounts SET count=? WHERE resource_type='track'", (track_count,))
-	db.sqlite.execute("UPDATE ResourceCounts SET count=? WHERE resource_type='playlist'", (playlist_count,))
+	db.sqlite.execute("UPDATE RepostCounts SET count=? WHERE resource_type='track'", (track_count,))
+	db.sqlite.execute("UPDATE RepostCounts SET count=? WHERE resource_type='playlist'", (playlist_count,))
 	db.commit()
 	
 	
