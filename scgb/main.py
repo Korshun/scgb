@@ -107,6 +107,7 @@ def check_comments():
     except HTTPError as e:
         if e.response.status_code == 404:
             logging.critical('Cannot find a track with id %d. Please, fix post_track_id in config.py', config.post_track_id)
+            sys.exit(1)
         else:
             raise
 
