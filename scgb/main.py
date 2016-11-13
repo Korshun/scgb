@@ -143,7 +143,7 @@ def check_comments():
             soundcloud.delete('/tracks/' + str(group_track.id) + '/comments/' + str(comment.id))
         except HTTPError as e:
             if e.response.status_code == 404:
-                logging.warning('Nothing to delete: %s', comment.body)
+                logging.warning('Comment already deleted')
             else:
                 raise
 
@@ -191,16 +191,17 @@ def process_comment(comment):
             return 'The provided link does not lead to a track.'
     
     resource_type = resource.kind
-                
-    # Is the resource banned?
-    if resource.id in banlist[resource_type]:
-        logging.info('Banned %s id: %d', resource_type, resource.id)
-        return 'This track or playlist is banned from this group'
 
     # Check for ownership
     if config.only_artist_tracks and comment.user_id != resource.user_id:
-        logging.info('Not an owner of: %s', url)
+        logging.info('Not the author of the resource')
         return 'You must be the author of the {} to post it in this group.'.format(resource_type)
+            
+    # Is the resource banned?
+    if resource.id in banlist[resource_type]:
+        reason = banlist[resource_type][resource.id];
+        logging.info('This resource is banned: %s', reason)
+        return 'This track or playlist is banned from this group: ' + reason
 
     # Repost/delete if needed
     is_reposted = check_repost_exists(resource_type, resource.id)
@@ -237,7 +238,7 @@ def process_comment(comment):
             group_delete(comment.user_id, resource_type, resource.id)
             request_description_update()
         else:
-            logging.info('Already deleted')
+            logging.info('Resource already deleted')
     
     else:
         assert False, 'Unknown action: ' + repr(action)
