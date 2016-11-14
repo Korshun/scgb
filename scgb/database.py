@@ -83,6 +83,12 @@ class Database(object):
         """The amount of playlists ever posted to the group."""
         return self.sqlite.execute("SELECT COUNT(*) FROM Reposts WHERE resource_type='playlist'").fetchone()[0]
         
+    @property
+    def user_count(self):
+        """The amount of users who have ever posted anything to the group."""
+        # FIXME: this number will be wrong in groups where users can repost other users' tracks
+        return self.sqlite.execute("SELECT COUNT(DISTINCT user_id) FROM Reposts")
+        
     def log_action(self, user_id, action, resource_type, resource_id):
         """Record a successful user action to the database."""
 

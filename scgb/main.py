@@ -303,6 +303,7 @@ def update_description():
         'bot_version': BOT_VERSION,
         'track_count': track_count,
         'playlist_count': playlist_count,
+        'user_count': db.user_count,
         'post_count': track_count + playlist_count
     }
         
