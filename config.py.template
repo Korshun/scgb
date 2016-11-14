@@ -27,10 +27,8 @@ keyword_tag='$'
 stats_keyword='Stats:'
 description_template = '''
 Last update: $last_update$ (UTC)
-This group uses scgb v$bot_version$
-Total posts: $post_count$
-Tracks posted: $track_count$
-Playlists posted: $playlist_count$
+This group is using scgb v$bot_version$.
+$user_count$ users have made $post_count$ posts ($track_count$ tracks and $playlist_count$ playlists)
 '''
 
 #EOF
