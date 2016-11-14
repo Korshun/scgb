@@ -3,18 +3,6 @@ _schema = """
 PRAGMA application_id={application_id};
 PRAGMA user_version={user_version};
 
-CREATE TABLE RepostCounts
-(
-    resource_type TEXT,
-    count INTEGER,
-    
-    PRIMARY KEY(resource_type)
-);
-
-INSERT INTO RepostCounts (resource_type, count) VALUES
-('track', 0),
-('playlist', 0);
-
 CREATE TABLE Reposts
 ( 
     resource_type TEXT, 
@@ -34,9 +22,12 @@ CREATE INDEX idx_RepostsByUser ON Reposts (user_id, last_reposted_at);
 import sqlite3
 import os
 from time import time
+
+import shutil
+import logging
     
 _APPLICATION_ID = (ord('S')<<24) + (ord('C')<<16) + (ord('G')<<8) + ord('B')
-_DB_VERSION = 1
+_DB_VERSION = 2
 
 class Database(object):
     """An SCGB database."""
@@ -52,20 +43,45 @@ class Database(object):
                 raise ValueError(filename + ' is not a Soundcloud Group Bot database')
             if dbversion > _DB_VERSION:
                 raise ValueError(filename + ' is from a newer version of Soundcloud Group Bot')
+                
+            # Upgrade the database if needed:
+            while dbversion < _DB_VERSION:
+                # Make a backup
+                backupname = filename + '.version{}'.format(dbversion)
+                logging.info('Making a backup of the database to %s', backupname)
+                shutil.copy(filename, backupname)
+                
+                # Upgrade the database
+                logging.info('Upgrading the database to version %d...', dbversion + 1)
+                self._upgrade_db(dbversion)
+                dbversion += 1
+                self.sqlite.execute('PRAGMA user_version=' + str(dbversion))
+                logging.info('Database upgraded')
         else:
             self.sqlite = sqlite3.connect(filename)
+            logging.info('Initializing a new database...')
             self.sqlite.executescript(_schema.format(application_id=_APPLICATION_ID, user_version=_DB_VERSION))
             self.sqlite.execute("PRAGMA application_id=" + str(_APPLICATION_ID))
             self.sqlite.execute("PRAGMA user_version=" + str(_DB_VERSION))
             self.sqlite.commit()
+            logging.info('Database initialized')
+            
+    def _upgrade_db(self, dbversion):
+        """Given the current database version, upgrade it to the next version."""
+        if dbversion == 1:
+            self.sqlite.execute("DROP TABLE RepostCounts")
+        else:
+            assert False, 'Unknown database version {}'.format(dbversion)
     
     @property
     def track_count(self):
-        return self.sqlite.execute("SELECT count FROM RepostCounts WHERE resource_type='track'").fetchone()[0]
+        """The amount of tracks ever posted to the group."""
+        return self.sqlite.execute("SELECT COUNT(*) FROM Reposts WHERE resource_type='track'").fetchone()[0]
         
     @property
     def playlist_count(self):
-        return self.sqlite.execute("SELECT count FROM RepostCounts WHERE resource_type='playlist'").fetchone()[0]
+        """The amount of playlists ever posted to the group."""
+        return self.sqlite.execute("SELECT COUNT(*) FROM Reposts WHERE resource_type='playlist'").fetchone()[0]
         
     def log_action(self, user_id, action, resource_type, resource_id):
         """Record a successful user action to the database."""
@@ -86,10 +102,6 @@ class Database(object):
             change = -1
         else:
             raise ValueError('Unknown action ' + repr(action))
-            
-        self.sqlite.execute("""
-            UPDATE RepostCounts SET count=count + ? WHERE resource_type=?""",
-            (change, resource_type))
             
     def mark_as_deleted(self, resource_type, resource_id):
         """Mark a resource as not reposted.
