@@ -8,7 +8,7 @@ CREATE TABLE Reposts
     resource_type TEXT, -- 'track' or 'playlist'
     resource_id INTEGER, -- soundcloud id
     last_reposted_at INTEGER, -- last repost time in seconds
-    deleted INTEGER, -- 1 if the repost has been deleted (can be desynced)
+    deleted INTEGER, -- 1 if the repost has been deleted (can get desynced)
     user_id INTEGER, -- the user who made the repost
     
     PRIMARY KEY(resource_type, resource_id)
