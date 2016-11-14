@@ -12,7 +12,7 @@ import imp
 
 from scgb.database import Database
 
-BOT_VERSION = '1.3.1-ALPHA'
+BOT_VERSION = '1.3.1-BETA'
 
 banlist = {
     'user': {},
