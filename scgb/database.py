@@ -32,7 +32,7 @@ _DB_VERSION = 2
 class Database(object):
     """An SCGB database."""
 
-    def __init__(self, filename):
+    def __init__(self, filename, readonly=False):
         """Create or open a database."""
         if os.path.exists(filename):
             self.sqlite = sqlite3.connect(filename)
@@ -45,6 +45,9 @@ class Database(object):
                 raise ValueError(filename + ' is from a newer version of Soundcloud Group Bot')
                 
             # Upgrade the database if needed:
+            if dbversion < _DB_VERSION and readonly:
+                raise ValueError(filename + 'needs upgrading, but database is opened read-only')
+            
             while dbversion < _DB_VERSION:
                 # Make a backup
                 backupname = filename + '.version{}'.format(dbversion)
@@ -87,7 +90,7 @@ class Database(object):
     def user_count(self):
         """The amount of users who have ever posted anything to the group."""
         # FIXME: this number will be wrong in groups where users can repost other users' tracks
-        return self.sqlite.execute("SELECT COUNT(DISTINCT user_id) FROM Reposts")
+        return self.sqlite.execute("SELECT COUNT(DISTINCT user_id) FROM Reposts").fetchone()[0]
         
     def log_action(self, user_id, action, resource_type, resource_id):
         """Record a successful user action to the database."""
