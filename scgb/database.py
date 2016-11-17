@@ -26,7 +26,7 @@ import logging
 _APPLICATION_ID = (ord('S')<<24) + (ord('C')<<16) + (ord('G')<<8) + ord('B')
 _DB_VERSION = 2
 
-class Database(object):
+class Database():
     """An SCGB database."""
 
     def __init__(self, filename, readonly=False):
