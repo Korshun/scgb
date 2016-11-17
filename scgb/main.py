@@ -276,14 +276,14 @@ def group_repost(user_id, resource_type, resource_id):
     """Repost a resource into the group and update the database."""
     logging.info('Reposting %s %d...', resource_type, resource_id)
     soundcloud.put('/e1/me/{}_reposts/{}'.format(resource_type, resource_id))
-    db.log_action(user_id, 'repost', resource_type, resource_id)
+    db.record_repost(user_id, resource_type, resource_id)
     db.commit()
 
 def group_delete(user_id, resource_type, resource_id):
     """Delete a resource from the group and update the database."""
     logging.info('Deleting %s %d...', resource_type, resource_id)
     soundcloud.delete('/e1/me/{}_reposts/{}'.format(resource_type, resource_id))
-    db.log_action(user_id, 'delete', resource_type, resource_id)
+    db.record_deletion(user_id, resource_type, resource_id)
     db.commit()
 
     

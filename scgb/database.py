@@ -92,25 +92,21 @@ class Database(object):
         # FIXME: this number will be wrong in groups where users can repost other users' tracks
         return self.sqlite.execute("SELECT COUNT(DISTINCT user_id) FROM Reposts").fetchone()[0]
         
-    def log_action(self, user_id, action, resource_type, resource_id):
-        """Record a successful user action to the database."""
-
-        if action == 'repost':
-            self.sqlite.execute("""
-                INSERT OR REPLACE INTO Reposts 
-                (resource_type, resource_id, last_reposted_at, deleted, user_id)
-                VALUES (?, ?, ?, ?, ?)""",
-                (resource_type, resource_id, int(time()), False, user_id))
-            change = 1
-        elif action == 'delete':
-            self.sqlite.execute("""
-                UPDATE Reposts 
-                SET deleted=1
-                WHERE resource_type=? AND resource_id=?""",
-                (resource_type, resource_id))
-            change = -1
-        else:
-            raise ValueError('Unknown action ' + repr(action))
+    def record_repost(self, user_id, resource_type, resource_id):
+        """Record a repost to the database."""
+        self.sqlite.execute("""
+            INSERT OR REPLACE INTO Reposts 
+            (resource_type, resource_id, last_reposted_at, deleted, user_id)
+            VALUES (?, ?, ?, ?, ?)""",
+            (resource_type, resource_id, int(time()), False, user_id))
+            
+    def record_deletion(self, user_id, resource_type, resource_id):
+        """Record a deletion to the database."""
+        self.sqlite.execute("""
+            UPDATE Reposts 
+            SET deleted=1
+            WHERE resource_type=? AND resource_id=?""",
+            (resource_type, resource_id))
             
     def mark_as_deleted(self, resource_type, resource_id):
         """Mark a resource as not reposted.
