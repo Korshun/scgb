@@ -1,8 +1,5 @@
 _schema = """
 
-PRAGMA application_id={application_id};
-PRAGMA user_version={user_version};
-
 CREATE TABLE Reposts
 ( 
     resource_type TEXT, -- 'track' or 'playlist'
@@ -63,7 +60,7 @@ class Database(object):
         else:
             self.sqlite = sqlite3.connect(filename)
             logging.info('Initializing a new database...')
-            self.sqlite.executescript(_schema.format(application_id=_APPLICATION_ID, user_version=_DB_VERSION))
+            self.sqlite.executescript(_schema)
             self.sqlite.execute("PRAGMA application_id=" + str(_APPLICATION_ID))
             self.sqlite.execute("PRAGMA user_version=" + str(_DB_VERSION))
             self.sqlite.commit()
