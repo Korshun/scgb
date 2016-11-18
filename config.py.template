@@ -11,6 +11,7 @@ allow_playlists = True
 min_bump_interval=60 * 60 * 24
 
 stats_database='scgb-stats.db'
+token_cache='token-cache.json.secret'
 banlistfile='banlist.txt'
 
 # See genres.txt for available soundcloud default genres, if 'allowed_genres = None' then all genres are allowed

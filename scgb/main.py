@@ -30,7 +30,6 @@ should_update_description = False
 def bot_init():
     global db
     global config
-    global soundcloud
     
     # Init log
     logging.basicConfig(stream=sys.stdout, level=logging.INFO, datefmt='[%Y-%m-%d %H:%M:%S]', format='%(asctime)s %(levelname)s %(message)s')
@@ -53,6 +52,39 @@ def bot_init():
     load_banlist()
     
     # Init soundcloud client
+    init_api()
+
+    
+def init_api():
+    """Authenticate with SoundCloud API.
+    Cache access token in the secrets file."""
+    global soundcloud
+    import json
+    
+    SECRETS_VERSION = 1
+    
+    # Load secrets file
+    if os.path.exists(config.token_cache):
+        with open(config.token_cache, 'r') as f:
+            secrets = json.load(f)
+    else:
+        secrets = {}
+        
+    # Try to reuse the cached access token
+    if secrets\
+        and secrets['version'] == SECRETS_VERSION\
+        and secrets['access_token_acquired_at'] + secrets['access_token_expires_in'] > time() - 5 * 60\
+        and secrets['username'] == config.username:
+        
+        soundcloud = Soundcloud(
+            client_id=config.client_id,
+            client_secret=config.client_secret,
+            access_token=secrets['access_token']
+        )
+        return
+    
+    # Get a new access token
+    logging.info('Getting a new access token')    
     try:
         soundcloud = Soundcloud(
             client_id=config.client_id,
@@ -66,6 +98,19 @@ def bot_init():
             sys.exit(1)
         else:
             raise
+        
+    # Save the token
+    secrets = {
+        'version': SECRETS_VERSION,
+        'username': config.username,
+        'access_token': soundcloud.access_token,
+        'access_token_acquired_at': time(),
+        'access_token_expires_in': soundcloud.token.expires_in,
+    }
+    
+    with open(config.token_cache, 'w') as f:
+        secrets = json.dump(secrets, f, indent='\t', ensure_ascii=False)
+        
 
 def load_banlist():
     """Load the banlist."""
