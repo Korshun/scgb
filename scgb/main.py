@@ -260,7 +260,7 @@ def process_comment(comment):
     
         # Enforce minimum bump interval
         last_reposted = db.last_repost_time(resource_type, resource.id)
-        if last_reposted > int(time()) - config.min_bump_interval:
+        if last_reposted is not None and last_reposted > int(time()) - config.min_bump_interval:
             logging.info('This %s was posted %d seconds ago, but minimum bump interval is %d.', resource_type, int(time()) - last_reposted, config.min_bump_interval)
             return 'This {} is posted to the group too frequently. Try again later.'.format(resource_type)
             
