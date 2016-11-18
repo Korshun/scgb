@@ -12,7 +12,7 @@ import imp
 
 from scgb.database import Database
 
-BOT_VERSION = '1.3.1-BETA'
+BOT_VERSION = '1.3.2-BETA'
 
 banlist = {
     'user': {},
@@ -30,7 +30,6 @@ should_update_description = False
 def bot_init():
     global db
     global config
-    global soundcloud
     
     # Init log
     logging.basicConfig(stream=sys.stdout, level=logging.INFO, datefmt='[%Y-%m-%d %H:%M:%S]', format='%(asctime)s %(levelname)s %(message)s')
@@ -53,6 +52,39 @@ def bot_init():
     load_banlist()
     
     # Init soundcloud client
+    init_api()
+
+    
+def init_api():
+    """Authenticate with SoundCloud API.
+    Cache access token in the secrets file."""
+    global soundcloud
+    import json
+    
+    SECRETS_VERSION = 1
+    
+    # Load secrets file
+    if os.path.exists(config.token_cache):
+        with open(config.token_cache, 'r') as f:
+            secrets = json.load(f)
+    else:
+        secrets = {}
+        
+    # Try to reuse the cached access token
+    if secrets\
+        and secrets['version'] == SECRETS_VERSION\
+        and secrets['access_token_acquired_at'] + secrets['access_token_expires_in'] > time() - 5 * 60\
+        and secrets['username'] == config.username:
+        
+        soundcloud = Soundcloud(
+            client_id=config.client_id,
+            client_secret=config.client_secret,
+            access_token=secrets['access_token']
+        )
+        return
+    
+    # Get a new access token
+    logging.info('Getting a new access token')    
     try:
         soundcloud = Soundcloud(
             client_id=config.client_id,
@@ -66,6 +98,19 @@ def bot_init():
             sys.exit(1)
         else:
             raise
+        
+    # Save the token
+    secrets = {
+        'version': SECRETS_VERSION,
+        'username': config.username,
+        'access_token': soundcloud.access_token,
+        'access_token_acquired_at': time(),
+        'access_token_expires_in': soundcloud.token.expires_in,
+    }
+    
+    with open(config.token_cache, 'w') as f:
+        secrets = json.dump(secrets, f, indent='\t', ensure_ascii=False)
+        
 
 def load_banlist():
     """Load the banlist."""
@@ -215,7 +260,7 @@ def process_comment(comment):
     
         # Enforce minimum bump interval
         last_reposted = db.last_repost_time(resource_type, resource.id)
-        if last_reposted > int(time()) - config.min_bump_interval:
+        if last_reposted is not None and last_reposted > int(time()) - config.min_bump_interval:
             logging.info('This %s was posted %d seconds ago, but minimum bump interval is %d.', resource_type, int(time()) - last_reposted, config.min_bump_interval)
             return 'This {} is posted to the group too frequently. Try again later.'.format(resource_type)
             
@@ -276,14 +321,14 @@ def group_repost(user_id, resource_type, resource_id):
     """Repost a resource into the group and update the database."""
     logging.info('Reposting %s %d...', resource_type, resource_id)
     soundcloud.put('/e1/me/{}_reposts/{}'.format(resource_type, resource_id))
-    db.log_action(user_id, 'repost', resource_type, resource_id)
+    db.record_repost(user_id, resource_type, resource_id)
     db.commit()
 
 def group_delete(user_id, resource_type, resource_id):
     """Delete a resource from the group and update the database."""
     logging.info('Deleting %s %d...', resource_type, resource_id)
     soundcloud.delete('/e1/me/{}_reposts/{}'.format(resource_type, resource_id))
-    db.log_action(user_id, 'delete', resource_type, resource_id)
+    db.record_deletion(user_id, resource_type, resource_id)
     db.commit()
 
     

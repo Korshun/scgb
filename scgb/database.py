@@ -1,8 +1,5 @@
 _schema = """
 
-PRAGMA application_id={application_id};
-PRAGMA user_version={user_version};
-
 CREATE TABLE Reposts
 ( 
     resource_type TEXT, -- 'track' or 'playlist'
@@ -29,7 +26,7 @@ import logging
 _APPLICATION_ID = (ord('S')<<24) + (ord('C')<<16) + (ord('G')<<8) + ord('B')
 _DB_VERSION = 2
 
-class Database(object):
+class Database():
     """An SCGB database."""
 
     def __init__(self, filename, readonly=False):
@@ -63,7 +60,7 @@ class Database(object):
         else:
             self.sqlite = sqlite3.connect(filename)
             logging.info('Initializing a new database...')
-            self.sqlite.executescript(_schema.format(application_id=_APPLICATION_ID, user_version=_DB_VERSION))
+            self.sqlite.executescript(_schema)
             self.sqlite.execute("PRAGMA application_id=" + str(_APPLICATION_ID))
             self.sqlite.execute("PRAGMA user_version=" + str(_DB_VERSION))
             self.sqlite.commit()
@@ -92,25 +89,21 @@ class Database(object):
         # FIXME: this number will be wrong in groups where users can repost other users' tracks
         return self.sqlite.execute("SELECT COUNT(DISTINCT user_id) FROM Reposts").fetchone()[0]
         
-    def log_action(self, user_id, action, resource_type, resource_id):
-        """Record a successful user action to the database."""
-
-        if action == 'repost':
-            self.sqlite.execute("""
-                INSERT OR REPLACE INTO Reposts 
-                (resource_type, resource_id, last_reposted_at, deleted, user_id)
-                VALUES (?, ?, ?, ?, ?)""",
-                (resource_type, resource_id, int(time()), False, user_id))
-            change = 1
-        elif action == 'delete':
-            self.sqlite.execute("""
-                UPDATE Reposts 
-                SET deleted=1
-                WHERE resource_type=? AND resource_id=?""",
-                (resource_type, resource_id))
-            change = -1
-        else:
-            raise ValueError('Unknown action ' + repr(action))
+    def record_repost(self, user_id, resource_type, resource_id):
+        """Record a repost to the database."""
+        self.sqlite.execute("""
+            INSERT OR REPLACE INTO Reposts 
+            (resource_type, resource_id, last_reposted_at, deleted, user_id)
+            VALUES (?, ?, ?, ?, ?)""",
+            (resource_type, resource_id, int(time()), False, user_id))
+            
+    def record_deletion(self, user_id, resource_type, resource_id):
+        """Record a deletion to the database."""
+        self.sqlite.execute("""
+            UPDATE Reposts 
+            SET deleted=1
+            WHERE resource_type=? AND resource_id=?""",
+            (resource_type, resource_id))
             
     def mark_as_deleted(self, resource_type, resource_id):
         """Mark a resource as not reposted.

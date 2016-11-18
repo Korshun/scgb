@@ -6,3 +6,4 @@ config.py
 *.sqlite
 *-journal
 *.version*
+*.secret
