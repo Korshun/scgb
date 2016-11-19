@@ -8,9 +8,9 @@
 - `master` - beta and lastest version
 
 # What you need:
-- [Python 2.7](https://www.python.org/downloads/)
+- [Python 3.5](https://www.python.org/downloads/)
 - open admin terminal (Windows: right click cmd.exe -> "Run as administrator")
-- type the command `pip2 install requests`
+- type the command `pip3 install requests`
 
 # How to set up your own group:
 
