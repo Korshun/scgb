@@ -65,7 +65,7 @@ def init_api():
     
     # Load secrets file
     if os.path.exists(config.token_cache):
-        with open(config.token_cache, 'r') as f:
+        with open(config.token_cache, 'r', encoding='utf-8') as f:
             secrets = json.load(f)
     else:
         secrets = {}
@@ -108,7 +108,7 @@ def init_api():
         'access_token_expires_in': soundcloud.token.expires_in,
     }
     
-    with open(config.token_cache, 'w') as f:
+    with open(config.token_cache, 'w', encoding='utf-8') as f:
         secrets = json.dump(secrets, f, indent='\t', ensure_ascii=False)
         
 
