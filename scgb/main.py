@@ -209,12 +209,8 @@ def process_comment(comment):
     url = comment.body
     action = 'repost'
     if url.startswith('!'):
-        if not config.allow_delete:
-            logging.info('Deleting is not allowed. Skipping.')
-            return 'Deleting is not allowed in this group.'
-        else:
-            action = 'delete'
-            url = url[1:]
+        action = 'delete'
+        url = url[1:]
 
     # Resolve the resource to repost
     resource = resolve_resource(url)
@@ -235,7 +231,7 @@ def process_comment(comment):
     resource_type = resource.kind
 
     # Check for ownership
-    if config.debug_mode and comment.user_id != resource.user_id:
+    if not config.debug_mode and comment.user_id != resource.user_id:
         logging.info('Not the author of the resource')
         return 'You must be the author of the {} to post it in this group.'.format(resource_type)
             
@@ -263,10 +259,6 @@ def process_comment(comment):
             
         # Execute the command
         if is_reposted:
-            if not config.allow_delete:
-                logging.warning('Refreshing is not allowed when allow_delete = False. Skipping.')
-                return 'Bumping is not allowed in this group.'
-                
             logging.info('Bumping:')
             group_delete(comment.user_id, resource_type, resource.id)
             group_repost(comment.user_id, resource_type, resource.id)

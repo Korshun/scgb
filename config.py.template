@@ -4,9 +4,8 @@ client_secret=''
 username=''
 password=''
 
-debug_mode = True
+debug_mode = False
 
-allow_delete = True
 allow_playlists = True
 
 min_bump_interval=60 * 60 * 24
