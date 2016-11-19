@@ -4,7 +4,8 @@ client_secret=''
 username=''
 password=''
 
-only_artist_tracks = True
+debug_mode = True
+
 allow_delete = True
 allow_playlists = True
 

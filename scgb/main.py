@@ -209,9 +209,6 @@ def process_comment(comment):
     url = comment.body
     action = 'repost'
     if url.startswith('!'):
-        if not config.only_artist_tracks:
-            logging.info('Deleting is not allowed when only_artist_tracks = False. Skipping.')
-            return 'Deleting reposts is not allowed in this group.'
         if not config.allow_delete:
             logging.info('Deleting is not allowed. Skipping.')
             return 'Deleting is not allowed in this group.'
@@ -238,7 +235,7 @@ def process_comment(comment):
     resource_type = resource.kind
 
     # Check for ownership
-    if config.only_artist_tracks and comment.user_id != resource.user_id:
+    if config.debug_mode and comment.user_id != resource.user_id:
         logging.info('Not the author of the resource')
         return 'You must be the author of the {} to post it in this group.'.format(resource_type)
             
