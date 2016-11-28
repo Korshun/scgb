@@ -1,7 +1,9 @@
-// Get user id by name: https://helgesverre.com/soundcloud/
+// See track, user, and playlist id numbers in the bot's logs.
+
 // Example:
+
 // user 12345678 Spam abuse
 // track 12345678 Such tracks are not allowed
-// playlist 12345678
+// playlist 12345678 Playlist spam
 
 
