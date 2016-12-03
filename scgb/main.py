@@ -171,7 +171,9 @@ def check_comments():
         try:
             response = process_comment(comment)
         except HTTPError as e:
-            if e.response.status_code // 100 == 4:
+            if e.response.status_code == 429:
+                raise
+            elif e.response.status_code // 100 == 4:
                 logging.exception('Failed to process comment due to a client request error:')
             else:
                 raise
