@@ -4,7 +4,7 @@
 - Only the tracks you made are reposted.
 - All comments on this track are automatically removed.
 - If you try to post an already posted track, it will be bumped to the top.
-- A track or playlist won't be bumped/reposed if it was bumped/reposted less than 24 hours ago.
+- A track or playlist won't be bumped/reposed if it was bumped/reposted less than a week ago. The limit is so large because SoundCloud blocks reposts if the same track or playlist is repeatedly unreposted and reposted.
 
 You can repost playlists too! Use them, if you want to post multiple tracks.
 
