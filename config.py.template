@@ -8,8 +8,11 @@ debug_mode = False
 
 allow_playlists = True
 
+# Anti-spam measures
 min_bump_interval=60 * 60 * 24 * 7
+max_posts_per_day=3
 
+# Bot files
 stats_database='scgb-stats.db'
 token_cache='token-cache.json.secret'
 banlistfile='banlist.txt'

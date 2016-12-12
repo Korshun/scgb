@@ -12,7 +12,7 @@ import imp
 
 from scgb.database import Database
 
-BOT_VERSION = '1.3.2'
+BOT_VERSION = '1.3.3'
 
 banlist = {
     'user': {},
@@ -259,6 +259,12 @@ def process_comment(comment):
         if last_reposted is not None and last_reposted > int(time()) - config.min_bump_interval:
             logging.info('This %s was posted %d seconds ago, but minimum bump interval is %d.', resource_type, int(time()) - last_reposted, config.min_bump_interval)
             return 'This {} is posted to the group too frequently. Try again later.'.format(resource_type)
+            
+        # Enforce max posts per day
+        last_post_count = db.user_last_posts_count(comment.user_id, 60 * 60 * 24)
+        if last_post_count >= config.max_posts_per_day:
+            logging.info('The user has already made %d reposts today.', last_post_count)
+            return 'You have already made {} posts today.'.format(config.max_posts_per_day)
             
         # Execute the command
         if is_reposted:
