@@ -138,7 +138,7 @@ class Database():
         if result:
             return result[0]
             
-    def user_last_reposts_count(self, user_id, interval):
+    def user_last_posts_count(self, user_id, interval):
         """Return the amount of resources posted by a user in the last interval seconds."""
         
         return self.sqlite.execute("""

@@ -5,8 +5,9 @@
 - All comments on this track are automatically removed.
 - If you try to post an already posted track, it will be bumped to the top.
 - A track or playlist won't be bumped/reposed if it was bumped/reposted less than a week ago. The limit is so large because SoundCloud blocks reposts if the same track or playlist is repeatedly unreposted and reposted.
+- You cannot make more than 3 posts per 24 hours.
 
-You can repost playlists too! Use them, if you want to post multiple tracks.
+You can repost playlists too! Use them if you want to post multiple tracks.
 
 Put '!' before the link to remove the track or playlist from this group.
 Example: !http://link.to/your/track
