@@ -254,6 +254,11 @@ def process_comment(comment):
                 logging.info('Genre not allowed: %s', resource.genre)
             return 'This genre is not allowed in this group. Allowed genres are: ' + ', '.join(config.allowed_genres)
     
+        # Disable bumps if needed
+        if not config.allow_bumps and db.has_ever_been_posted(resource_type, resource.id):
+            logging.info('Bumping is disabled and this resource is present in the database.')
+            return 'Bumping is not allowed in this group.'
+    
         # Enforce minimum bump interval
         last_reposted = db.last_repost_time(resource_type, resource.id)
         if last_reposted is not None and last_reposted > int(time()) - config.min_bump_interval:
