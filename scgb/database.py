@@ -124,7 +124,7 @@ class Database():
         return self.sqlite.execute("""
             SELECT COUNT(*) > 0 FROM Reposts
             WHERE resource_type=? AND resource_id=?""",
-            (resource_type, resource_id)).fetchone()
+            (resource_type, resource_id)).fetchone()[0]
             
     def last_repost_time(self, resource_type, resource_id):
         """Return a resource's last repost time, or None if the resource
