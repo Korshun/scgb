@@ -118,13 +118,13 @@ class Database():
             WHERE resource_type=? AND resource_id=?""",
             (resource_type, resource_id))
         
-    def is_reposted(self, resource_type, resource_id):
-        """Return True if the resource is reposted, according to the database."""
+    def has_ever_been_posted(self, resource_type, resource_id):
+        """Return true if the resource has ever been posted to the group."""
         
-        self.sqlite.execute("""
-            SELECT COUNT(*) FROM Reposts
-            WHERE deleted=0 AND resource_type=? AND resource_id=?""",
-            (resource_type, resource_id)).fetchone()[0]
+        return self.sqlite.execute("""
+            SELECT COUNT(*) > 0 FROM Reposts
+            WHERE resource_type=? AND resource_id=?""",
+            (resource_type, resource_id)).fetchone()
             
     def last_repost_time(self, resource_type, resource_id):
         """Return a resource's last repost time, or None if the resource
