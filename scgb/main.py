@@ -366,7 +366,10 @@ def update_description():
         original = soundcloud.get('/me').description
         if not original:
             return
-            
+
+        if config.stats_keyword not in original:
+            logging.warning('No stats keyword found in the description. Ignoring.')
+            return
         new_desc, _ = original.split(config.stats_keyword, 1)
         new_desc += config.stats_keyword + '\n'
         new_desc += desc
