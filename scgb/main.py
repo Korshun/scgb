@@ -11,6 +11,7 @@ import sys
 import imp
 
 from scgb.database import Database
+from defaults import defaults
 
 BOT_VERSION = '1.3.3'
 
@@ -44,7 +45,10 @@ def bot_init():
     else:
         logging.critical('Please, rename config.py.template to config.py and edit it.\nOr specify a config to load on the command line: py scgb.py <config file>')
         sys.exit(1)
-        
+
+    # Init config defaults
+    init_defaults()
+
     # Init database
     db = Database(config.stats_database)
     
@@ -54,7 +58,13 @@ def bot_init():
     # Init soundcloud client
     init_api()
 
-    
+
+def init_defaults():
+    """ Init defaults in the config namespace to simplify mass configuration """
+    for key in defaults.keys():
+        if not hasattr(config, key):
+            setattr(config, key, defaults[key])
+
 def init_api():
     """Authenticate with SoundCloud API.
     Cache access token in the secrets file."""
