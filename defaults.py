@@ -3,8 +3,6 @@
 defaults = {
 'client_id' : '',
 'client_secret' : '',
-'username' : '',
-'password' : '',
 'debug_mode' : False,
 'allow_playlists' : True,
 'allow_bumps' : False,
