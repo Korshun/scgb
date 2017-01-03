@@ -11,7 +11,6 @@ import sys
 import imp
 
 from scgb.database import Database
-from defaults import defaults
 
 BOT_VERSION = '1.3.3'
 
@@ -61,6 +60,11 @@ def bot_init():
 
 def init_defaults():
     """ Init defaults in the config namespace to simplify mass configuration """
+    try:
+        from defaults import defaults
+    except ImportError:
+        return
+
     for key in defaults.keys():
         if not hasattr(config, key):
             setattr(config, key, defaults[key])
