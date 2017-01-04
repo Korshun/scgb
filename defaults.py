@@ -16,6 +16,7 @@ defaults = {
 'post_track_id' : 0,
 'keyword_tag': '$',
 'stats_keyword' : 'Stats:',
+'use_advanced_description' : 2,
 'description_template': '''
 Last update: $last_update$ (UTC)
 This group is using scgb v$bot_version$.
