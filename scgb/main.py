@@ -168,12 +168,12 @@ class GroupBot():
             else:
                 self._group_repost(comment.user_id, resource_type, resource.id)
             
-            self._request_description_update()
+            self._should_update_description = True
                 
         elif action == 'delete':
             if is_reposted:
                 self._group_delete(comment.user_id, resource_type, resource.id)
-                self._request_description_update()
+                self._should_update_description = True
             else:
                 logging.info('Resource already deleted')
         
@@ -223,11 +223,6 @@ class GroupBot():
         self._db.record_deletion(user_id, resource_type, resource_id)
         self._db.commit()
 
-        
-    def _request_description_update(self):
-        """Set a flag to update the description once all comments are processed."""
-        self._should_update_description = True
-        
     def _update_description(self):
         """Update group description."""
         
