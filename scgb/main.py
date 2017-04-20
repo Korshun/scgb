@@ -27,10 +27,13 @@ soundcloud = None
 should_update_description = False
 
 
-def bot_init(input_config):
+def bot_init(input_db, input_config, input_banlist):
     global db
     global config
+    global banlist
+    db = input_db
     config = input_config
+    banlist = input_banlist
     
     # Init soundcloud client
     init_api()

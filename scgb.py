@@ -78,5 +78,5 @@ if __name__ == '__main__':
     db = Database(config.stats_database)
     banlist = load_banlist(config.banlistfile)
                 
-    bot_init(config)
+    bot_init(db, config, banlist)
     check_comments()
