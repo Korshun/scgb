@@ -14,12 +14,6 @@ from scgb.client import SoundcloudClient, BadCredentialsError
 
 BOT_VERSION = '1.3.3'
 
-banlist = {
-    'user': {},
-    'track': {},
-    'playlist': {},
-}
-
 config = None
 db = None
 soundcloud = None
