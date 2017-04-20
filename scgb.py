@@ -2,6 +2,7 @@
 
 from scgb.main import bot_init, check_comments
 from scgb.database import Database
+from scgb.client import SoundcloudClient
 
 import imp
 import os
@@ -77,6 +78,13 @@ if __name__ == '__main__':
     config = load_config()
     db = Database(config.stats_database)
     banlist = load_banlist(config.banlistfile)
+    
+    # Init API
+    try:
+        soundcloud = SoundcloudClient(config.client_id, config.client_secret, config.username, config.password, config.token_cache)
+    except BadCredentialsError:
+        logging.critical('Incorrect API key, login or password. Please, edit config.py.')
+        sys.exit(1)
                 
-    bot_init(db, config, banlist)
+    bot_init(soundcloud, db, config, banlist)
     check_comments()

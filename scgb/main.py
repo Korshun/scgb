@@ -27,27 +27,16 @@ soundcloud = None
 should_update_description = False
 
 
-def bot_init(input_db, input_config, input_banlist):
+def bot_init(input_soundcloud, input_db, input_config, input_banlist):
+    global soundcloud
     global db
     global config
     global banlist
+    soundcloud = input_soundcloud
     db = input_db
     config = input_config
     banlist = input_banlist
     
-    # Init soundcloud client
-    init_api()
-
-
-def init_api():
-    global soundcloud
-    try:
-        soundcloud = SoundcloudClient(config.client_id, config.client_secret, config.username, config.password, config.token_cache)
-    except BadCredentialsError:
-        logging.critical('Incorrect API key, login or password. Please, edit config.py.')
-        sys.exit(1)
-
-
 
 def check_comments():
     """Download all comments and process them."""
