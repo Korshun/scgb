@@ -1,7 +1,6 @@
 # By Monsterovich
 # This script reposts user's track from the comments
 
-from soundcloud import Client as Soundcloud
 from requests import HTTPError
 from time import strftime, time, gmtime
 
@@ -11,6 +10,7 @@ import sys
 import imp
 
 from scgb.database import Database
+from scgb.client import SoundcloudClient, BadCredentialsError
 
 BOT_VERSION = '1.3.3'
 
@@ -70,61 +70,12 @@ def init_defaults():
             setattr(config, key, defaults[key])
 
 def init_api():
-    """Authenticate with SoundCloud API.
-    Cache access token in the secrets file."""
     global soundcloud
-    import json
-    
-    SECRETS_VERSION = 1
-    
-    # Load secrets file
-    if os.path.exists(config.token_cache):
-        with open(config.token_cache, 'r', encoding='utf-8') as f:
-            secrets = json.load(f)
-    else:
-        secrets = {}
-        
-    # Try to reuse the cached access token
-    if secrets\
-        and secrets['version'] == SECRETS_VERSION\
-        and secrets['access_token_acquired_at'] + secrets['access_token_expires_in'] > time() - 5 * 60\
-        and secrets['username'] == config.username:
-        
-        soundcloud = Soundcloud(
-            client_id=config.client_id,
-            client_secret=config.client_secret,
-            access_token=secrets['access_token']
-        )
-        return
-    
-    # Get a new access token
-    logging.info('Getting a new access token')    
     try:
-        soundcloud = Soundcloud(
-            client_id=config.client_id,
-            client_secret=config.client_secret,
-            username=config.username,
-            password=config.password
-        )
-    except HTTPError as e:
-        if e.response.status_code == 401:
-            logging.critical('Incorrect API key, login or password. Please, edit config.py.')
-            sys.exit(1)
-        else:
-            raise
-        
-    # Save the token
-    secrets = {
-        'version': SECRETS_VERSION,
-        'username': config.username,
-        'access_token': soundcloud.access_token,
-        'access_token_acquired_at': time(),
-        'access_token_expires_in': soundcloud.token.expires_in,
-    }
-    
-    with open(config.token_cache, 'w', encoding='utf-8') as f:
-        secrets = json.dump(secrets, f, indent='\t', ensure_ascii=False)
-        
+        soundcloud = SoundcloudClient(config.client_id, config.client_secret, config.username, config.password, config.token_cache)
+    except BadCredentialsError:
+        logging.critical('Incorrect API key, login or password. Please, edit config.py.')
+        sys.exit(1)
 
 def load_banlist():
     """Load the banlist."""
