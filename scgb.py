@@ -1,7 +1,8 @@
 #!/usr/bin/python3
 
 from scgb.main import bot_init, check_comments
-    
+from scgb.database import Database
+
 import imp
 import os
 import sys
@@ -38,5 +39,8 @@ if __name__ == '__main__':
 	# Init config
     config = load_config()
 			
+    # Init database
+    db = Database(config.stats_database)
+            
     bot_init(config)
     check_comments()

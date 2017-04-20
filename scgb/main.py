@@ -32,9 +32,6 @@ def bot_init(input_config):
     global config
     config = input_config
     
-    # Init database
-    db = Database(config.stats_database)
-    
     # Init banlist
     load_banlist()
     
