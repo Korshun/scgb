@@ -32,10 +32,6 @@ def bot_init(input_config):
     global config
     config = input_config
     
-
-    # Init config defaults
-    init_defaults()
-
     # Init database
     db = Database(config.stats_database)
     
@@ -45,17 +41,6 @@ def bot_init(input_config):
     # Init soundcloud client
     init_api()
 
-
-def init_defaults():
-    """ Init defaults in the config namespace to simplify mass configuration """
-    try:
-        from defaults import defaults
-    except ImportError:
-        return
-
-    for key in defaults.keys():
-        if not hasattr(config, key):
-            setattr(config, key, defaults[key])
 
 def init_api():
     global soundcloud
