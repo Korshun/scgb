@@ -25,18 +25,8 @@ class GroupBot():
     def check_comments(self):
         """Download all comments and process them."""
 
-        # Get the id of the group track
-        try:
-            group_track = self._soundcloud.get('/me/tracks')[self._config.post_track_id]
-        except HTTPError as e:
-            if e.response.status_code == 404:
-                logging.critical('Cannot find a track with id %d. Please, fix post_track_id in self._config.py', self._config.post_track_id)
-                sys.exit(1)
-            else:
-                raise
-
-        # Get the comment list for the group track
-        comments = self._soundcloud.get('/tracks/%d/comments' % group_track.id)
+        # Get new comments
+        comments = self._get_new_comments()
         if not comments:
             logging.info('Nothing found...')
             return
@@ -76,6 +66,26 @@ class GroupBot():
 
         if self._config.use_advanced_description and self._should_update_description:
             self._update_description()
+                    
+    def _get_new_comments(self):
+        """Return new comments in the order they were posted in"""
+        
+        # Get the id of the group track
+        try:
+            group_track = self._soundcloud.get('/me/tracks')[self._config.post_track_id]
+        except HTTPError as e:
+            if e.response.status_code == 404:
+                logging.critical('Cannot find a track with id %d. Please, fix post_track_id in self._config.py', self._config.post_track_id)
+                sys.exit(1)
+            else:
+                raise
+
+        # Get the comment list for the group track
+        comments = self._soundcloud.get('/tracks/%d/comments' % group_track.id)
+        
+        # Reverse the list to match post order
+        comments.reverse()
+        return comments
                     
     def _process_comment(self, comment):
         """Process a single comment."""
