@@ -32,9 +32,6 @@ def bot_init(input_config):
     global config
     config = input_config
     
-    # Init banlist
-    load_banlist()
-    
     # Init soundcloud client
     init_api()
 
@@ -47,36 +44,7 @@ def init_api():
         logging.critical('Incorrect API key, login or password. Please, edit config.py.')
         sys.exit(1)
 
-def load_banlist():
-    """Load the banlist."""
 
-    # create banlist if it doesn't exist
-    if not os.path.exists(config.banlistfile):
-        open(config.banlistfile, 'ab').close()
-
-    with open(config.banlistfile, 'r') as file:
-        for line in file:
-            line = line.strip()
-            if line == '' or line.startswith('//'):
-                continue # skip empty lines and comments
-
-            values = line.split(None, 2)
-
-            what = values[0]
-            if what not in ['user', 'track', 'playlist']:
-                logging.warning('Banlist error: unknown ban type: %s', what)
-                continue
-
-            try:
-                id = int(values[1])
-            except ValueError:
-                logging.warning('Banlist error: %d is not a %s id number', id, what)
-                continue
-
-            if len(values) > 2:
-                banlist[what][id] = values[2]
-            else:
-                banlist[what][id] = "No reason given."
 
 def check_comments():
     """Download all comments and process them."""

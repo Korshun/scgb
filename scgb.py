@@ -29,6 +29,43 @@ def load_config():
                 setattr(config, key, defaults[key])
         
     return config
+
+def load_banlist(path):
+    # create banlist if it doesn't exist
+    if not os.path.exists(path):
+        open(path, 'ab').close()
+
+    banlist = {
+        'user': {},
+        'track': {},
+        'playlist': {},
+    }
+        
+    with open(path, 'r') as file:
+        for line in file:
+            line = line.strip()
+            if line == '' or line.startswith('//'):
+                continue # skip empty lines and comments
+
+            values = line.split(None, 2)
+
+            what = values[0]
+            if what not in ['user', 'track', 'playlist']:
+                logging.warning('Banlist error: unknown ban type: %s', what)
+                continue
+
+            try:
+                id = int(values[1])
+            except ValueError:
+                logging.warning('Banlist error: %d is not a %s id number', id, what)
+                continue
+
+            if len(values) > 2:
+                banlist[what][id] = values[2]
+            else:
+                banlist[what][id] = "No reason given."
+                
+    return banlist
     
 if __name__ == '__main__':
     # Init log
@@ -38,9 +75,8 @@ if __name__ == '__main__':
 	
 	# Init config
     config = load_config()
-			
-    # Init database
     db = Database(config.stats_database)
-            
+    banlist = load_banlist(config.banlistfile)
+                
     bot_init(config)
     check_comments()
