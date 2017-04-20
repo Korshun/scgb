@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from scgb.main import bot_init, check_comments
+from scgb.main import GroupBot
 from scgb.database import Database
 from scgb.client import SoundcloudClient
 
@@ -86,5 +86,5 @@ if __name__ == '__main__':
         logging.critical('Incorrect API key, login or password. Please, edit config.py.')
         sys.exit(1)
                 
-    bot_init(soundcloud, db, config, banlist)
-    check_comments()
+    bot = GroupBot(soundcloud, db, config, banlist)
+    bot.check_comments()
