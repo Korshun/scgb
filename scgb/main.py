@@ -193,7 +193,7 @@ class GroupBot():
         return resource
 
     def _check_repost_exists(self, type, id):
-        """Return true if the respost exists, according to soundcloud.
+        """Return true if the repost exists, according to soundcloud.
         
         Also update the database if a repost is already deleted
         on self._soundcloud, but is not marked as deleted in the db."""
