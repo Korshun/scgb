@@ -22,7 +22,7 @@ def load_config():
     # Init config defaults to simplify mass configuration
     try:
         defaults = imp.load_source('scgb_defaults', os.path.join(os.getcwd(), 'defaults.py'))
-    except ImportError:
+    except (ImportError, FileNotFoundError):
         pass
     else:
         for key in defaults.defaults.keys():
