@@ -12,6 +12,11 @@ import imp
 from scgb.database import Database
 from scgb.client import SoundcloudClient, BadCredentialsError
 
+from datetime import datetime, timezone
+def parse_sc_datetime(sc_datetime):
+    dt = datetime.strptime(sc_datetime, '%Y/%m/%d %H:%M:%S %z')
+    return dt.replace(tzinfo=timezone.utc).timestamp()
+    
 BOT_VERSION = '1.3.3'
 
 class GroupBot():
@@ -21,6 +26,19 @@ class GroupBot():
         self._config = config
         self._banlist = banlist
         self._should_update_description = False
+        
+        # Get the group's user id
+        self._group_user_id = self._soundcloud.get('/me').id
+        
+        # Get the id of the group track
+        try:
+            self._group_track_id = self._soundcloud.get('/me/tracks')[self._config.post_track_id].id
+        except HTTPError as e:
+            if e.response.status_code == 404:
+                logging.critical('Cannot find a track with id %d. Please, fix post_track_id in self._config.py', self._config.post_track_id)
+                sys.exit(1)
+            else:
+                raise
 
     def check_comments(self):
         """Download all comments and process them."""
@@ -45,47 +63,53 @@ class GroupBot():
                     return
                 elif e.response.status_code // 100 == 4:
                     logging.exception('Failed to process comment due to a client request error:')
+                    response = 'An error happened while processing your comment. We are investigating.'
                 else:
                     raise
             except Exception as e: # Program crash
                 logging.exception('Failed to process comment:')
-            else:
-                if response:
-                    logging.info('The comment would have this response: %s', response) 
-                else:
-                    logging.info('Comment processed successfully')
-                
-            # Delete the processed comment
-            try:
-                self._soundcloud.delete('/tracks/' + str(group_track.id) + '/comments/' + str(comment.id))
-            except HTTPError as e:
-                if e.response.status_code == 404:
-                    logging.warning('Comment already deleted')
-                else:
-                    raise
+                response = 'An error happened while processing your comment. We are investigating.'
+            
+            # Record last processed comment's date to avoid processing earlier comments
+            self._db['last_processed_comment_date'] = parse_sc_datetime(comment.created_at)
+            self._db.commit()
+            
+            # Respond to comment if reposting failed
+            if response:
+                response = '@%s %s' % (comment.user['permalink'], response)
+                logging.info('Responding: %s', response)
+                try:
+                    self._soundcloud.post('/tracks/%d/comments' % self._group_track_id,comment={
+                        'body': response,
+                        'timestamp': comment.timestamp
+                    })
+                except HTTPError as e:
+                    logging.exception('Failed to respond to comment')
+
+            logging.info('Comment processed successfully')
 
         if self._config.use_advanced_description and self._should_update_description:
             self._update_description()
                     
     def _get_new_comments(self):
         """Return new comments in the order they were posted in"""
-        
-        # Get the id of the group track
-        try:
-            group_track = self._soundcloud.get('/me/tracks')[self._config.post_track_id]
-        except HTTPError as e:
-            if e.response.status_code == 404:
-                logging.critical('Cannot find a track with id %d. Please, fix post_track_id in self._config.py', self._config.post_track_id)
-                sys.exit(1)
-            else:
-                raise
-
+                
         # Get the comment list for the group track
-        comments = self._soundcloud.get('/tracks/%d/comments' % group_track.id)
+        comments = self._soundcloud.get('/tracks/%d/comments' % self._group_track_id)
         
         # Reverse the list to match post order
         comments.reverse()
-        return comments
+        
+        # Remove comments made by the group account and already processed comments
+        last_processed_comment_date = self._db.get('last_processed_comment_date')
+        def should_ignore_comment(comment):
+            if comment.user_id == self._group_user_id:
+                return True
+            if last_processed_comment_date is not None and parse_sc_datetime(comment.created_at) <= last_processed_comment_date:
+                return True
+            return False
+       
+        return [comment for comment in comments if not should_ignore_comment(comment)]
                     
     def _process_comment(self, comment):
         """Process a single comment."""

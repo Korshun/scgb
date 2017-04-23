@@ -14,6 +14,12 @@ CREATE TABLE Reposts
 CREATE INDEX idx_RepostsByTime ON Reposts (last_reposted_at);
 CREATE INDEX idx_RepostsByUser ON Reposts (user_id, last_reposted_at);
 
+CREATE TABLE KeyValue
+(
+    key TEXT PRIMARY KEY,
+    value
+);
+
 """
     
 import sqlite3
@@ -24,7 +30,7 @@ import shutil
 import logging
     
 _APPLICATION_ID = (ord('S')<<24) + (ord('C')<<16) + (ord('G')<<8) + ord('B')
-_DB_VERSION = 2
+_DB_VERSION = 3
 
 class Database():
     """An SCGB database."""
@@ -70,6 +76,13 @@ class Database():
         """Given the current database version, upgrade it to the next version."""
         if dbversion == 1:
             self.sqlite.execute("DROP TABLE RepostCounts")
+        elif dbversion == 2:
+            self.sqlite.execute("""
+            CREATE TABLE KeyValue
+            (
+                key TEXT PRIMARY KEY,
+                value
+            );""")
         else:
             assert False, 'Unknown database version {}'.format(dbversion)
     
@@ -145,7 +158,26 @@ class Database():
             SELECT COUNT(*) FROM Reposts
             WHERE user_id=? AND deleted=0 AND last_reposted_at > ?""",
             (user_id, int(time()) - interval)).fetchone()[0]
-            
+    
+    def __getitem__(self, key):
+        return self.sqlite.execute("SELECT value FROM KeyValue WHERE key=?", (key,)).fetchone()[0]
+        
+    def __setitem__(self, key, value):
+        return self.sqlite.execute("INSERT OR REPLACE INTO KeyValue (key, value) VALUES (?, ?)", (key, value))
+        
+    def __delitem__(self, key):
+        return self.sqlite.execute("DELETE FROM KeyValue WHERE key=?", (key,))
+    
+    def __contains__(self, key):
+        return self.sqlite.execute("SELECT COUNT(*) > 0 FROM KeyValue WHERE key=?", (key,)).fetchone()[0]
+    
+    def get(self, key, default=None):
+        result = self.sqlite.execute("SELECT value FROM KeyValue WHERE key=?", (key,)).fetchone()
+        if result:
+            return result[0]
+        else:
+            return default
+    
     def commit(self):
         """Shorthand for self.sqlite.commit()."""
         return self.sqlite.commit()
