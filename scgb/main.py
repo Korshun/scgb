@@ -74,7 +74,7 @@ class GroupBot():
             self._db['last_processed_comment_date'] = parse_sc_datetime(comment.created_at)
             self._db.commit()
             
-            # Respond to comment if reposting failed
+            # Respond to comment
             if response:
                 try:
                     response = '@%s %s' % (comment.user['permalink'], response)
@@ -188,15 +188,17 @@ class GroupBot():
                 logging.info('Bumping:')
                 self._group_delete(comment.user_id, resource_type, resource.id)
                 self._group_repost(comment.user_id, resource_type, resource.id)
+                return 'Bumped!'
             else:
                 self._group_repost(comment.user_id, resource_type, resource.id)
-            
-            self._should_update_description = True
+                self._should_update_description = True
+                return 'Reposted!'
                 
         elif action == 'delete':
             if is_reposted:
                 self._group_delete(comment.user_id, resource_type, resource.id)
                 self._should_update_description = True
+                return 'Deleted!'
             else:
                 logging.info('Resource already deleted')
         
