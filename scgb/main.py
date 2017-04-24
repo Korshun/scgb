@@ -95,11 +95,8 @@ class GroupBot():
         """Return new comments in the order they were posted in"""
                 
         # Get the comment list for the group track
-        comments = self._soundcloud.get('/tracks/%d/comments' % self._group_track_id)
-        
-        # Reverse the list to match post order
-        comments.reverse()
-        
+        comments = self._soundcloud.get('/tracks/%d/comments' % self._group_track_id, order='created_at')
+
         # Remove comments made by the group account and already processed comments
         last_processed_comment_date = self._db.get('last_processed_comment_date')
         def should_ignore_comment(comment):
