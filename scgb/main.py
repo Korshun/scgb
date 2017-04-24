@@ -76,14 +76,16 @@ class GroupBot():
             
             # Respond to comment if reposting failed
             if response:
-                response = '@%s %s' % (comment.user['permalink'], response)
-                logging.info('Responding: %s', response)
                 try:
-                    self._soundcloud.post('/tracks/%d/comments' % self._group_track_id,comment={
-                        'body': response,
-                        'timestamp': comment.timestamp
-                    })
-                except HTTPError as e:
+                    response = '@%s %s' % (comment.user['permalink'], response)
+                    logging.info('Responding: %s', response)
+                    response = {
+                        'body': response
+                    }
+                    if hasattr(comment, 'timestamp'):
+                        response['timestamp'] = comment.timestamp
+                    self._soundcloud.post('/tracks/%d/comments' % self._group_track_id, comment=response)
+                except Exception as e:
                     logging.exception('Failed to respond to comment')
 
             logging.info('Comment processed successfully')
